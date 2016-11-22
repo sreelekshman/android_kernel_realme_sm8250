@@ -799,6 +799,7 @@
 #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
 #define SW_MACHINE_COVER	0x10  /* set = cover closed */
 #define SW_MAX			0x10
+#define SW_MICROPHONE2_INSERT	0x12  /* set = inserted */
 #define SW_CNT			(SW_MAX+1)
 
 /*
