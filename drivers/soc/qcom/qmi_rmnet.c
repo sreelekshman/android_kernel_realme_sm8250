@@ -1262,7 +1262,7 @@ void qmi_rmnet_work_init(void *port)
 		rmnet_ps_wq = NULL;
 		return;
 	}
-	INIT_DEFERRABLE_WORK(&rmnet_work->work, qmi_rmnet_check_stats);)
+	INIT_DELAYED_WORK(&rmnet_work->work, qmi_rmnet_check_stats);
 	rmnet_work->port = port;
 	rmnet_get_packets(rmnet_work->port, &rmnet_work->old_rx_pkts,
 			  &rmnet_work->old_tx_pkts);
