@@ -212,7 +212,7 @@ void cam_packet_dump_patch_info(struct cam_packet *packet,
 		dst_cpu_addr = (uint32_t *)((uint8_t *)dst_cpu_addr +
 			patch_desc[i].dst_offset);
 		value = *((uint64_t *)dst_cpu_addr);
-		CAM_INFO(CAM_UTIL,
+		CAM_ERR(CAM_UTIL,
 			"i = %d src_buf 0x%llx src_hdl 0x%x src_buf_with_offset 0x%llx size 0x%llx dst %p dst_offset %u dst_hdl 0x%x value 0x%llx",
 			i, iova_addr, patch_desc[i].src_buf_hdl,
 			(iova_addr + patch_desc[i].src_offset),

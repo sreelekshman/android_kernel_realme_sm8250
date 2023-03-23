@@ -2,6 +2,7 @@
 /*
  * Copyright (c) 2016-2020, The Linux Foundation. All rights reserved.
  * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2020, Oplus. All rights reserved.
  */
 
 #include <linux/module.h>
@@ -28,8 +29,12 @@
 #include "cam_debug_util.h"
 #include "cam_common_util.h"
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+//zhangzhengrong@camera modify for kernel event Q overlow issue case04395272
+#define CAM_REQ_MGR_EVENT_MAX 80
+#else
 #define CAM_REQ_MGR_EVENT_MAX 100
-
+#endif
 static struct cam_req_mgr_device g_dev;
 struct kmem_cache *g_cam_req_mgr_timer_cachep;
 
@@ -139,7 +144,6 @@ static int cam_req_mgr_open(struct file *filep)
 	spin_unlock_bh(&g_dev.cam_eventq_lock);
 
 	g_dev.open_cnt++;
-	CAM_DBG(CAM_CRM, " CRM open cnt %d", g_dev.open_cnt);
 	rc = cam_mem_mgr_init();
 	if (rc) {
 		g_dev.open_cnt--;
@@ -188,18 +192,11 @@ static int cam_req_mgr_close(struct file *filep)
 	cam_req_mgr_rwsem_write_op(CAM_SUBDEV_LOCK);
 
 	mutex_lock(&g_dev.cam_lock);
+
 	if (g_dev.open_cnt <= 0) {
 		mutex_unlock(&g_dev.cam_lock);
 		cam_req_mgr_rwsem_write_op(CAM_SUBDEV_UNLOCK);
 		return -EINVAL;
-	}
-
-	g_dev.open_cnt--;
-	CAM_DBG(CAM_CRM, "CRM open_cnt %d", g_dev.open_cnt);
-
-	if (g_dev.open_cnt > 0) {
-		mutex_unlock(&g_dev.cam_lock);
-		return 0;
 	}
 
 	cam_req_mgr_handle_core_shutdown();
@@ -214,6 +211,7 @@ static int cam_req_mgr_close(struct file *filep)
 		}
 	}
 
+	g_dev.open_cnt--;
 	v4l2_fh_release(filep);
 
 	spin_lock_bh(&g_dev.cam_eventq_lock);
@@ -562,30 +560,6 @@ static long cam_private_ioctl(struct file *file, void *fh,
 			rc = -EINVAL;
 		}
 		break;
-	case CAM_REQ_MGR_REQUEST_DUMP: {
-		struct cam_dump_req_cmd cmd;
-
-		if (k_ioctl->size != sizeof(cmd))
-			return -EINVAL;
-
-		if (copy_from_user(&cmd,
-			u64_to_user_ptr(k_ioctl->handle),
-			sizeof(struct cam_dump_req_cmd))) {
-			rc = -EFAULT;
-			break;
-		}
-		rc = cam_req_mgr_dump_request(&cmd);
-		if (rc) {
-			CAM_ERR(CAM_CORE, "dump fail for dev %d req %llu rc %d",
-				cmd.dev_handle, cmd.issue_req_id, rc);
-			break;
-		}
-		if (copy_to_user(
-			u64_to_user_ptr(k_ioctl->handle),
-			&cmd, sizeof(struct cam_dump_req_cmd)))
-			rc = -EFAULT;
-		}
-		break;
 	default:
 		return -ENOIOCTLCMD;
 	}
@@ -674,23 +648,6 @@ void cam_register_subdev_fops(struct v4l2_file_operations *fops)
 }
 EXPORT_SYMBOL(cam_register_subdev_fops);
 
-void cam_subdev_notify_message(u32 subdev_type,
-	enum cam_subdev_message_type_t message_type,
-	uint32_t data)
-{
-	struct v4l2_subdev *sd = NULL;
-	struct cam_subdev *csd = NULL;
-
-	list_for_each_entry(sd, &g_dev.v4l2_dev->subdevs, list) {
-		if (sd->entity.function == subdev_type) {
-			csd = container_of(sd, struct cam_subdev, sd);
-			if (csd->msg_cb != NULL)
-				csd->msg_cb(sd, message_type, data);
-		}
-	}
-}
-EXPORT_SYMBOL(cam_subdev_notify_message);
-
 bool cam_req_mgr_is_open(void)
 {
 	bool crm_status = false;
@@ -737,7 +694,7 @@ int cam_register_subdev(struct cam_subdev *csd)
 	sd = &csd->sd;
 	v4l2_subdev_init(sd, csd->ops);
 	sd->internal_ops = csd->internal_ops;
-	snprintf(sd->name, V4L2_SUBDEV_NAME_SIZE, "%s", csd->name);
+	snprintf(sd->name, ARRAY_SIZE(sd->name), csd->name);
 	v4l2_set_subdevdata(sd, csd->token);
 
 	sd->flags = csd->sd_flags;
