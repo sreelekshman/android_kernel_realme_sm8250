@@ -39,11 +39,18 @@ Required Properties:
   - clocks: References to external parent clocks, one entry for each entry in
     clock-names
   - clock-names: List of external parent clock names. Valid names are:
+<<<<<<< HEAD
       - "extal" (r8a7743, r8a7745, r8a77470, r8a774a1, r8a774b1, r8a774c0,
 		 r8a7790, r8a7791, r8a7792, r8a7793, r8a7794, r8a7795, r8a7796,
 		 r8a77965, r8a77970, r8a77980, r8a77990, r8a77995)
       - "extalr" (r8a774a1, r8a774b1, r8a7795, r8a7796, r8a77965, r8a77970,
 		  r8a77980)
+=======
+      - "extal" (r8a7743, r8a7745, r8a77470, r8a7790, r8a7791, r8a7792,
+		 r8a7793, r8a7794, r8a7795, r8a7796, r8a77965, r8a77970,
+		 r8a77980, r8a77990, r8a77995)
+      - "extalr" (r8a7795, r8a7796, r8a77965, r8a77970, r8a77980)
+>>>>>>> c7b357e106ea (arm64: dts: vendor: Import realme SM8250 project DTS from RealmeUI 4.0)
       - "usb_extal" (r8a7743, r8a7745, r8a77470, r8a7790, r8a7791, r8a7793,
 		     r8a7794)
 
