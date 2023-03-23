@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 // Copyright (C) 2018 Western Digital Corporation
+// Copyright (C) 2020 Oplus. All rights reserved.
 
 #include <linux/err.h>
 #include <linux/string.h>

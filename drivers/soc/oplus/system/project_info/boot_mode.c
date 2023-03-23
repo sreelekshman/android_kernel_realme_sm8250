@@ -150,7 +150,10 @@ bool qpnp_is_power_off_charging(void)
 	return false;
 }
 
+<<<<<<< HEAD
 #ifdef PHOENIX_PROJECT
+=======
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 bool op_is_monitorable_boot(void)
 {
 	if (ftm_mode != MSM_BOOT_MODE__NORMAL) {
@@ -163,11 +166,20 @@ bool op_is_monitorable_boot(void)
 		return true;
 	} else if (!strcmp(boot_mode, "kernel")) {
 		return true;
+<<<<<<< HEAD
+=======
+	} else if (!strcmp(boot_mode, "rtc")) {
+		return true;
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 	} else {
 		return false;
 	}
 }
+<<<<<<< HEAD
 #endif
+=======
+EXPORT_SYMBOL(op_is_monitorable_boot);
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 
 char charger_reboot[MAX_CMD_LENGTH + 1];
 bool qpnp_is_charger_reboot(void)

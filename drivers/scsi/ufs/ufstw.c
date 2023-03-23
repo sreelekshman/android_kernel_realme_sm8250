@@ -108,13 +108,13 @@ static int ufstw_set_lu_flag_dynamic_tw(struct ufstw_lu *tw, u8 idn, bool *flag_
 	struct ufs_hba *hba = tw->ufsf->hba;
 	int err = 0, lun;
 
-	/* ufstw_lu_get(tw); */
+	//ufstw_lu_get(tw);
 	lun = (tw->lun == TW_LU_SHARED) ? 0 : tw->lun;
 	err = ufsf_query_flag_retry(hba, UPIU_QUERY_OPCODE_SET_FLAG, idn,
 				    (u8)lun, NULL);
 	if (err) {
 		ERR_MSG("set flag [0x%.2X] failed...err %d", idn, err);
-		/* ufstw_lu_put(tw); */
+		//ufstw_lu_put(tw);
 		return err;
 	}
 
@@ -128,7 +128,7 @@ static int ufstw_set_lu_flag_dynamic_tw(struct ufstw_lu *tw, u8 idn, bool *flag_
 
 	/*INFO_MSG("tw_flag LUN(%d) [0x%.2X] %u", lun, idn,*flag_res);*/
 
-	switch(idn) {
+	switch(idn){
 	case QUERY_FLAG_IDN_WB_EN:
 		ufsf_para.tw_enable = true;
 		break;
@@ -136,7 +136,7 @@ static int ufstw_set_lu_flag_dynamic_tw(struct ufstw_lu *tw, u8 idn, bool *flag_
 		break;
 	}
 
-	/* ufstw_lu_put(tw); */
+	//ufstw_lu_put(tw);
 
 	return 0;
 }
@@ -146,13 +146,13 @@ static int ufstw_clear_lu_flag_dynamic_tw(struct ufstw_lu *tw, u8 idn, bool *fla
 	struct ufs_hba *hba = tw->ufsf->hba;
 	int err = 0, lun;
 
-	/* ufstw_lu_get(tw); */
+	//ufstw_lu_get(tw);
 	lun = (tw->lun == TW_LU_SHARED) ? 0 : tw->lun;
 	err = ufsf_query_flag_retry(hba, UPIU_QUERY_OPCODE_CLEAR_FLAG, idn,
 				    (u8)lun, NULL);
 	if (err) {
 		ERR_MSG("clear flag [0x%.2X] failed...err%d", idn, err);
-		/* ufstw_lu_put(tw); */
+		//ufstw_lu_put(tw);
 		return err;
 	}
 
@@ -164,9 +164,9 @@ static int ufstw_clear_lu_flag_dynamic_tw(struct ufstw_lu *tw, u8 idn, bool *fla
 			  idn == QUERY_FLAG_IDN_WB_BUFF_FLUSH_EN ? "FLUSH_EN" :
 			  idn == QUERY_FLAG_IDN_WB_BUFF_FLUSH_DURING_HIBERN8 ? "HIBERN_EN" :
 			  "UNKNOWN", idn);
-	INFO_MSG("tw_flag LUN(%d) [0x%.2X] %u", lun, idn, *flag_res);
+	INFO_MSG("tw_flag LUN(%d) [0x%.2X] %u", lun, idn,*flag_res);
 
-	switch(idn) {
+	switch(idn){
 	case QUERY_FLAG_IDN_WB_EN:
 		ufsf_para.tw_enable = false;
 		break;
@@ -174,7 +174,7 @@ static int ufstw_clear_lu_flag_dynamic_tw(struct ufstw_lu *tw, u8 idn, bool *fla
 		break;
 	}
 
-	/* ufstw_lu_put(tw); */
+	//ufstw_lu_put(tw);
 
 	return 0;
 }
@@ -279,10 +279,10 @@ static int ufstw_check_lifetime_not_guarantee(struct ufstw_lu *tw)
 {
 	bool disable_flag = false;
 	unsigned int lifetime_guarantee = MASK_UFSTW_LIFETIME_NOT_GUARANTEE_1_0_1;
-
+	
 	if(tw->ufsf->tw_dev_info.tw_ver == UFSTW_VER_1_1_0)
 		lifetime_guarantee = MASK_UFSTW_LIFETIME_NOT_GUARANTEE_1_1_0;
-	WARN_MSG("dTurboWriteBUfferLifeTImeEst (0x%.2X),lifetime_guarantee=0x%x", tw->lifetime_est, lifetime_guarantee);
+	WARN_MSG("dTurboWriteBUfferLifeTImeEst (0x%.2X),lifetime_guarantee=0x%x", tw->lifetime_est,lifetime_guarantee);
 	if (tw->lifetime_est & lifetime_guarantee) {
 		if (tw->lun == TW_LU_SHARED)
 			WARN_MSG("lun-shared lifetime_est[31] (1)");
@@ -415,16 +415,16 @@ void ufstw_get_dev_info(struct ufsf_feature *ufsf, u8 *desc_buf)
 
 	w_manufacturer_id =	desc_buf[DEVICE_DESC_PARAM_MANF_ID] << 8 |
 				desc_buf[DEVICE_DESC_PARAM_MANF_ID + 1];
-	INFO_MSG("dev_desc wspecversion 0x%x\n", wspecversion);
+	INFO_MSG("dev_desc wspecversion 0x%x\n",wspecversion);
 	if(wspecversion == 0x310 || wspecversion == 0x220)
 		tw_dev_info->tw_ver = LI_EN_16(&desc_buf[DEVICE_DESC_PARAM_TW_VER]);
 	else
 		tw_dev_info->tw_ver = LI_EN_16(&desc_buf[DEVICE_DESC_PARAM_TW_VER_3_0]);
 	/*temporary for hynix 2.2 tw function*/
-	if (wspecversion == 0x220 && w_manufacturer_id == 0x1AD)
+	if(wspecversion == 0x220 && w_manufacturer_id == 0x1AD)
 		tw_dev_info->tw_ver = UFSTW_VER_1_1_0;
         /*temporary for micron 3.1 tw function*/
-        if (wspecversion == 0x310 && w_manufacturer_id == 0x12C)
+        if(wspecversion == 0x310 && w_manufacturer_id == 0x12C)
                 tw_dev_info->tw_ver = UFSTW_VER_1_1_0;
 
 	if (ufstw_version_mismatched(tw_dev_info)) {
@@ -595,7 +595,7 @@ int ufstw_enable_tw_lun(struct ufstw_lu *tw, bool enable)
 		return 0;
 	}
 
-	/* mutex_lock(&tw->mode_lock); */
+	//mutex_lock(&tw->mode_lock);
 	if (enable) {
 		if (ufstw_set_lu_flag_dynamic_tw(tw, QUERY_FLAG_IDN_WB_EN,
 				      &tw->tw_enable)) {
@@ -611,7 +611,7 @@ int ufstw_enable_tw_lun(struct ufstw_lu *tw, bool enable)
 	}
 
 failed:
-	/* mutex_unlock(&tw->mode_lock); */
+	//mutex_unlock(&tw->mode_lock);
 
 	return ret;
 }
@@ -724,7 +724,7 @@ void ufstw_init(struct ufsf_feature *ufsf)
 	if (tw_enabled_lun == 0) {
 		ERR_MSG("tw_enabled_lun count zero");
 		goto out_free_mem;
-	}
+	} 
 
 	ufstw_set_state(ufsf, TW_PRESENT);
 	create_wbfn_enable();
@@ -947,9 +947,9 @@ ufstw_sysfs_attr_show_func(attr, lifetime_est,
 ufstw_sysfs_attr_show_func(attr, curr_buffer_size,
 			   QUERY_ATTR_IDN_CURR_WB_BUFF_SIZE, 0);
 
-#define ufstw_sysfs_attr_ro(_name) __ATTR(_name, 0444, \
+#define ufstw_sysfs_attr_ro(_name) __ATTR(_name, 0444,\
 				      ufstw_sysfs_show_##_name, NULL)
-#define ufstw_sysfs_attr_rw(_name) __ATTR(_name, 0644, \
+#define ufstw_sysfs_attr_rw(_name) __ATTR(_name, 0644,\
 				      ufstw_sysfs_show_##_name, \
 				      ufstw_sysfs_store_##_name)
 
@@ -1066,18 +1066,25 @@ kobj_del:
 
 static inline void wbfn_enable_ctrl(struct ufstw_lu *tw, long val)
 {
-	switch (val) {
-	case 0:
-		ufstw_clear_lu_flag(tw, QUERY_FLAG_IDN_WB_EN,
-				&tw->tw_enable);
-		break;
-	case 1:
-		ufstw_set_lu_flag(tw, QUERY_FLAG_IDN_WB_EN,
-				&tw->tw_enable);
-		break;
-	default:
-		break;
-	}
+
+	//mutex_lock(&tw->mode_lock);
+
+	//if (atomic_read(&tw->tw_mode) == TW_MODE_MANUAL) {
+		switch (val) {
+		case 0:
+			ufstw_clear_lu_flag(tw, QUERY_FLAG_IDN_WB_EN,
+					    &tw->tw_enable);
+			break;
+		case 1:
+			ufstw_set_lu_flag(tw, QUERY_FLAG_IDN_WB_EN,
+					  &tw->tw_enable);
+			break;
+		default:
+			break;
+		}
+	//}
+
+	//mutex_unlock(&tw->mode_lock);
 	return;
 }
 
@@ -1143,16 +1150,16 @@ static inline void wbfn_dynamic_tw_enable_ctrl(struct ufstw_lu *tw, long val)
 	int ret = 0;
 
 	if (atomic_read(&tw->ufsf->tw_state) == TW_PRESENT) {
-		INFO_MSG("val: %lu\n", val);
+		INFO_MSG("val: %lu\n",val);
 		switch (val) {
 		case 0:
 			tw->dynamic_tw_enable = false;
-			/* mutex_lock(&tw->mode_lock); */
+			//mutex_lock(&tw->mode_lock);
 			ret = ufstw_set_lu_flag(tw, QUERY_FLAG_IDN_WB_EN, &tw->tw_enable);
 			if(ret == 0) {
 				INFO_MSG("ufstw_set_lu_flag success");
 			}
-			/* utex_unlock(&tw->mode_lock); */
+			//utex_unlock(&tw->mode_lock);
 			break;
 		case 1:
 			tw->dynamic_tw_enable = true;

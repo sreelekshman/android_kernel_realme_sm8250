@@ -349,6 +349,10 @@ int get_pkt_index(struct cvp_hal_session_cmd_pkt *hdr)
 
 	return -EINVAL;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #ifndef OPLUS_FEATURE_CAMERA_COMMON
 int set_feature_bitmask(int pkt_idx, unsigned long *bitmask)
 {
@@ -376,6 +380,10 @@ int set_feature_bitmask(int pkt_idx, unsigned long *bitmask)
 	return -EINVAL;
 }
 #endif
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 int get_hfi_version(void)
 {
 	struct msm_cvp_core *core;
@@ -4575,6 +4583,14 @@ static inline int __resume(struct iris_hfi_device *device)
 		dprintk(CVP_ERR, "Failed to power on cvp\n");
 		goto err_iris_power_on;
 	}
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	reg_gdsc = __read_register(device, CVP_CC_MVS1C_GDSCR);
+	reg_cbcr = __read_register(device, CVP_CC_MVS1C_CBCR);
+	if (!(reg_gdsc & 0x80000000) || (reg_cbcr & 0x80000000))
+		dprintk(CVP_ERR, "CVP power on failed gdsc %x cbcr %x\n",
+					reg_gdsc, reg_cbcr);
+#endif
+
 #ifdef OPLUS_FEATURE_CAMERA_COMMON
 	reg_gdsc = __read_register(device, CVP_CC_MVS1C_GDSCR);
 	reg_cbcr = __read_register(device, CVP_CC_MVS1C_CBCR);

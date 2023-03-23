@@ -684,6 +684,11 @@ static int __init __reserved_mem_reserve_reg(unsigned long node,
 			init_param_mem_base_size(base, size);
 		#endif
 
+#if IS_ENABLED(CONFIG_OPLUS_PARAM_READ_WRITE)
+		if (!strncmp(uname, "param_mem", 9))
+			init_param_mem_base_size(base, size);
+#endif
+
 		len -= t_len;
 		if (first) {
 			fdt_reserved_mem_save_node(node, uname, base, size);

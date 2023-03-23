@@ -719,6 +719,7 @@ EXPORT_SYMBOL(request_firmware);
 
 
 #ifdef VENDOR_EDIT
+#ifdef OPLUS_FEATURE_WIFI_BDF
 //Add for: reload wlan bdf without using cache
 int
 request_firmware_no_cache(const struct firmware **firmware_p, const char *name,
@@ -735,6 +736,7 @@ request_firmware_no_cache(const struct firmware **firmware_p, const char *name,
 }
 EXPORT_SYMBOL(request_firmware_no_cache);
 #endif /* VENDOR_EDIT */
+#endif /* OPLUS_FEATURE_WIFI_BDF */
 
 /**
  * firmware_request_nowarn() - request for an optional fw module

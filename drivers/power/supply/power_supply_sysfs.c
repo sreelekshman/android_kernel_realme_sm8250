@@ -531,7 +531,6 @@ static struct device_attribute power_supply_attrs[] = {
 	POWER_SUPPLY_ATTR(smooth_soc),
 	POWER_SUPPLY_ATTR(smooth_switch),
 #endif
-
 #ifdef CONFIG_OPLUS_SHORT_USERSPACE
 	POWER_SUPPLY_ATTR(short_c_batt_limit_chg),
 	POWER_SUPPLY_ATTR(short_c_batt_limit_rechg),
@@ -599,6 +598,11 @@ static umode_t power_supply_attr_is_visible(struct kobject *kobj,
 				mode |= S_IWGRP;
 #endif
 
+
+#ifdef OPLUS_FEATURE_CHG_BASIC
+			if (property == POWER_SUPPLY_PROP_SMB1355_TEST)
+				mode |= S_IWGRP;
+#endif
 
 			return mode;
 		}

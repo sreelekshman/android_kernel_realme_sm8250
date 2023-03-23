@@ -36,7 +36,6 @@
 #define SE_I2C_NOISE_CANCEL_CTL                (0x234)
 #endif
 
-
 #define SE_I2C_ERR  (M_CMD_OVERRUN_EN | M_ILLEGAL_CMD_EN | M_CMD_FAILURE_EN |\
 			M_GP_IRQ_1_EN | M_GP_IRQ_3_EN | M_GP_IRQ_4_EN)
 #define SE_I2C_ABORT (1U << 1)
@@ -753,6 +752,18 @@ geni_i2c_gsi_xfer_out:
 		ret = gi2c->err;
 	return ret;
 }
+#ifdef OPLUS_FEATURE_CHG_BASIC
+#define MAX_RESET_COUNT	10
+#define MIN_RESET_COUNT	0
+#define I2C_RESET_BUS		0
+#define FG_DEVICE_ADDR		0x55
+#define DA9313_DEVICE_ADDR	0x68
+//#define CHARGER_DEVICE_ADDR 0x5c
+//#define MCU_DEVICE_ADDR	    0x26
+static bool i2c_err_occured = false;
+static unsigned int err_count = MAX_RESET_COUNT;
+extern int rpmb_is_enable(void);
+
 #ifdef OPLUS_FEATURE_CHG_BASIC
 #define MAX_RESET_COUNT	10
 #define MIN_RESET_COUNT	0

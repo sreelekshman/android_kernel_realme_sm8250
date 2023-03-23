@@ -689,13 +689,12 @@ static int find_valid_gpt(struct parsed_partitions *state, gpt_header **gpt,
  *  1 if successful
  *
  */
-
 struct replace_partition_tbl {
 	char *old_name;
 	char *new_name;
 };
 static struct replace_partition_tbl tbl[] = {
-	{"oplus_sec", "oplus_sec"},
+	{"oppo_sec", "oplus_sec"},
 	{"oppodycnvbk","oplusdycnvbk"},
 	{"oppostanvbk", "oplusstanvbk"},
 	{"opporeserve1", "oplusreserve1"},

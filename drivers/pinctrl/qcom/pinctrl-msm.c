@@ -501,6 +501,21 @@ static int msm_gpio_get_oplus_vooc(struct gpio_chip *chip, unsigned offset)
 }
 #endif /* OPLUS_FEATURE_CHG_BASIC */
 
+#ifdef OPLUS_FEATURE_CHG_BASIC
+static int msm_gpio_get_oplus_vooc(struct gpio_chip *chip, unsigned offset)
+{
+	const struct msm_pingroup *g;
+	struct msm_pinctrl *pctrl = gpiochip_get_data(chip);
+	u32 val;
+
+	//pr_err("%s enter\n", __func__);
+	g = &pctrl->soc->groups[offset];
+
+	val = readl_oplus_vooc(pctrl->regs + g->io_reg);
+	return !!(val & BIT(g->in_bit));
+}
+#endif /* OPLUS_FEATURE_CHG_BASIC */
+
 static void msm_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
 {
 	const struct msm_pingroup *g;

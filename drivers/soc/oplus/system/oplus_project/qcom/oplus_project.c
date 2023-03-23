@@ -327,7 +327,11 @@ uint32_t get_oplus_feature(enum F_INDEX index)
 EXPORT_SYMBOL(get_oplus_feature);
 
 #define SERIALNO_LEN 16
+<<<<<<< HEAD
 unsigned int get_serialID(void)
+=======
+unsigned int get_serialID()
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 {
     unsigned int serial_id = 0xFFFFFFFF;
 
@@ -552,7 +556,11 @@ static int project_read_func(struct seq_file *s, void *v)
     return 0;
 }
 
+<<<<<<< HEAD
 unsigned int get_cdt_version(void)
+=======
+unsigned int get_cdt_version()
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 {
     init_project_version();
 

@@ -3515,6 +3515,12 @@ static int msm_geni_serial_probe(struct platform_device *pdev)
 	}
 #endif
 
+#ifdef OPLUS_FEATURE_CHG_BASIC
+	if (!boot_with_console() && oplus_charge_id_reconfig(pdev, drv)) { 
+		return -ENODEV; 
+	}
+#endif
+
 	if (pdev->dev.of_node) {
 		if (drv->cons) {
 			line = of_alias_get_id(pdev->dev.of_node, "serial");

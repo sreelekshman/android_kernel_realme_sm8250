@@ -163,7 +163,11 @@ enum {
 
 enum power_supply_property {
 	/* Properties of type `int' */
+<<<<<<< HEAD
 //#ifdef OPLUS_FEATURE_CHG_BASIC
+=======
+#ifdef OPLUS_FEATURE_CHG_BASIC
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 	POWER_SUPPLY_PROP_CHARGE_TECHNOLOGY = 0,
 	POWER_SUPPLY_PROP_FAST_CHARGE,
 	POWER_SUPPLY_PROP_MMI_CHARGING_ENABLE,
@@ -186,7 +190,11 @@ enum power_supply_property {
 	POWER_SUPPLY_PROP_USBTEMP_VOLT_R,
 	POWER_SUPPLY_PROP_BATTERY_INFO,
 	POWER_SUPPLY_PROP_BATTERY_INFO_ID,
+<<<<<<< HEAD
 //#endif /* OPLUS_FEATURE_CHG_BASIC */
+=======
+#endif /* OPLUS_FEATURE_CHG_BASIC */
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 	POWER_SUPPLY_PROP_STATUS,
 	POWER_SUPPLY_PROP_CHARGE_TYPE,
 	POWER_SUPPLY_PROP_HEALTH,
@@ -393,7 +401,11 @@ enum power_supply_property {
 	POWER_SUPPLY_PROP_CHARGER_STATUS,
 	/* Local extensions of type int64_t */
 	POWER_SUPPLY_PROP_CHARGE_COUNTER_EXT,
+<<<<<<< HEAD
 //#ifdef OPLUS_FEATURE_CHG_BASIC
+=======
+#ifdef OPLUS_FEATURE_CHG_BASIC
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 	POWER_SUPPLY_PROP_ADAPTER_FW_UPDATE,
 	POWER_SUPPLY_PROP_VOOCCHG_ING,
 	POWER_SUPPLY_PROP_CHARGERID_VOLT,
@@ -433,7 +445,11 @@ enum power_supply_property {
 	POWER_SUPPLY_PROP_WIRELESS_TYPE,
 	POWER_SUPPLY_PROP_CEP_INFO,
 // wireless file  end
+<<<<<<< HEAD
 //#endif /*OPLUS_FEATURE_CHG_BASIC*/
+=======
+#endif /*OPLUS_FEATURE_CHG_BASIC*/
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 	/* Properties of type `const char *' */
 	POWER_SUPPLY_PROP_MODEL_NAME,
 	POWER_SUPPLY_PROP_MANUFACTURER,

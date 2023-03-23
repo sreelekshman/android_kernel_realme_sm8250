@@ -128,7 +128,6 @@ static inline u64 __raw_readq_no_log(const volatile void __iomem *addr)
 #ifdef OPLUS_FEATURE_CHG_BASIC
 #define __raw_writel_oplus_vooc(v, a)	__raw_write_logged_oplus_vooc((v), a, l)
 #endif /* OPLUS_FEATURE_CHG_BASIC */
-
 #define __raw_writeq(v, a)	__raw_write_logged((v), a, q)
 
 #define __raw_read_logged(a, _l, _t)    ({ \
@@ -200,7 +199,6 @@ static inline u64 __raw_readq_no_log(const volatile void __iomem *addr)
 #ifdef OPLUS_FEATURE_CHG_BASIC
 #define writel_relaxed_oplus_vooc(v,c)	((void)__raw_writel_oplus_vooc((__force u32)cpu_to_le32(v),(c)))
 #endif /* OPLUS_FEATURE_CHG_BASIC */
-
 #define writeq_relaxed(v,c)	((void)__raw_writeq((__force u64)cpu_to_le64(v),(c)))
 
 #define readb_relaxed_no_log(c)	({ u8 __v = __raw_readb_no_log(c); __v; })

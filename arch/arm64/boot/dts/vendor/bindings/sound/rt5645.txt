@@ -69,10 +69,7 @@ codec: rt5650@1a {
 	compatible = "realtek,rt5650";
 	reg = <0x1a>;
 	hp-detect-gpios = <&gpio 19 0>;
-<<<<<<< HEAD
 	cbj-sleeve-gpios = <&gpio 20 0>;
-=======
->>>>>>> c7b357e106ea (arm64: dts: vendor: Import realme SM8250 project DTS from RealmeUI 4.0)
 	interrupt-parent = <&gpio>;
 	interrupts = <7 IRQ_TYPE_EDGE_FALLING>;
 	realtek,dmic-en = "true";

@@ -1,11 +1,16 @@
 # SPDX-License-Identifier: GPL-2.0-only
 # Copyright (C) 2018-2020 Oplus. All rights reserved.
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 config OPLUS_SYSTEM_KERNEL
   bool "config oplus system feature "
   default y
   help
 	define this config to add oplus sytstem kernel feature
 
+<<<<<<< HEAD
 config OPLUS_ARCH_FILE
   bool "for build directory oplus"
   ---help---
@@ -25,11 +30,19 @@ config OPLUS_DEVICE_IFNO
   help
 	define this config to compile devinfo.c for device register
 		.
+=======
+config OPLUS_BUG_STABILITY
+  tristate "Config stability bug fixing effect"
+  help
+        Define this config to fix stability bugs
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 config OPLUS_BUG_STABILITY_EFFECTON_QGKI
   tristate "config stability bug fixing effect on qgki"
   help
 	define this config to fix stability bug only effect on qgki
 
+<<<<<<< HEAD
 config OPLUS_FEATURE_DETAILHEAD
   tristate "config detail kmsg"
   help
@@ -74,3 +87,11 @@ source "drivers/soc/oplus/system/mdmfeature/Kconfig"
 #ifdef CONFIG_OPLUS_FEATURE_FDLEAK_CHECK
 source "drivers/soc/oplus/system/oplus_fdleak/Kconfig"
 #endif /*CONFIG_OPLUS_FEATURE_FDLEAK_CHECK*/
+=======
+source "drivers/soc/oplus/system/feedback/Kconfig"
+source "drivers/soc/oplus/system/oplus_project/Kconfig"
+source "drivers/soc/oplus/system/project_info/Kconfig"
+source "drivers/soc/oplus/system/cmdline_parser/Kconfig"
+source "drivers/soc/oplus/system/oplus_mm_fb/Kconfig"
+source "drivers/soc/oplus/system/param/Kconfig"
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)

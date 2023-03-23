@@ -1,10 +1,7 @@
-/**
- * Copyright 2008-2013 OPLUS Mobile Comm Corp., Ltd, All rights reserved.
- * FileName:devinfo.h
- * ModuleName:devinfo
- * Create Date: 2013-10-23
- * Description:add interface to get device information.
-*/
+/* SPDX-License-Identifier: GPL-2.0-only */
+/*
+ * Copyright (C) 2018-2020 Oplus. All rights reserved.
+ */
 
 #ifndef _DEVICE_INFO_H
 #define _DEVICE_INFO_H

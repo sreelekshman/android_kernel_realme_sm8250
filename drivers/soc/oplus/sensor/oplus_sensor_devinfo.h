@@ -26,7 +26,11 @@
 #define REG_NUM 10
 #define PARAMETER_NUM 25
 #define FEATURE_NUM 10
+<<<<<<< HEAD
 #define SOURCE_NUM 3
+=======
+#define SOURCE_NUM 2
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #define ALGO_PARAMETER_NUM 15
 #define ALGO_FEATURE_NUM  5
 #define DEFAULT_CONFIG 0xff
@@ -133,10 +137,13 @@ struct sensor_vector {
     struct sensor_hw hw[SOURCE_NUM];
 };
 
+<<<<<<< HEAD
 struct sensor_vector_old {
     int sensor_id;
     struct sensor_hw hw[SOURCE_NUM - 1];
 };
+=======
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 
 struct sensor_algorithm {
     int sensor_id;
@@ -150,12 +157,15 @@ struct sensor_info {
     struct sensor_algorithm a_vector[SENSOR_ALGO_NUM];
 };
 
+<<<<<<< HEAD
 struct sensor_info_old {
     int magic_num;
     struct sensor_vector_old s_vector[SENSORS_NUM];
     struct sensor_algorithm a_vector[SENSOR_ALGO_NUM];
 };
 
+=======
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 struct oplus_als_cali_data {
     int red_max_lux;
     int green_max_lux;

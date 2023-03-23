@@ -235,14 +235,13 @@ struct qpnp_qg {
 	/* ttf */
 	struct ttf		*ttf;
 #ifdef OPLUS_FEATURE_CHG_BASIC
-    /* Yichun.Chen  PSW.BSP.CHG  2018-06-13  avoid when reboot soc reduce 1% */
-        int         skip_scale_soc_count;
+	/* Yichun.Chen  PSW.BSP.CHG  2018-06-13  avoid when reboot soc reduce 1% */
+	int			skip_scale_soc_count;
 #endif
 #ifdef OPLUS_FEATURE_CHG_BASIC
-    /* Zejin.Yang  BSP.CHG.Basic  2021-04-12  For oplus svooc/vooc chg project*/
-        int         asic_with_internal_gauge;
+	/* Zejin.Yang  BSP.CHG.Basic  2021-04-12  For oplus svooc/vooc chg project*/
+	int			asic_with_internal_gauge;
 #endif
-
 };
 
 struct ocv_all {

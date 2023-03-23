@@ -2714,7 +2714,7 @@ struct driver_attribute fw_ready_attr = {
 	.show = icnss_show_fw_ready,
 	//read only so we don't need to impl store func
 };
-#endif /* VENDOR_EDIT */
+#endif /* OPLUS_FEATURE_WIFI_DCS_SWITCH */
 
 static inline bool
 cnss_use_nv_mac(struct cnss_plat_data *plat_priv)

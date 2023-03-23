@@ -307,7 +307,6 @@ static int qg_process_tcss_soc(struct qpnp_qg *chip, int sys_soc)
 	soc_ibat = CAP(QG_MIN_SOC, QG_MAX_SOC, soc_ibat);
 
 #ifndef OPLUS_FEATURE_CHG_BASIC
-
 	wt_ibat = qg_linear_interpolate(1, chip->soc_tcss_entry,
 					10000, 10000, soc_ibat);
 	wt_ibat = CAP(QG_MIN_SOC, QG_MAX_SOC, wt_ibat);
@@ -499,11 +498,12 @@ static bool is_scaling_required(struct qpnp_qg *chip)
 {
 	bool input_present = is_input_present(chip);
 #ifdef OPLUS_FEATURE_CHG_BASIC
-		int ibat = 0;
-		int rc;
-	if (chip->asic_with_internal_gauge){
+	int ibat = 0;
+	int rc;
+	
+	if (chip->asic_with_internal_gauge) {
 		rc = qg_get_battery_current(chip, &ibat);
-		if(!rc){
+		if (!rc) {
 			if (chip->catch_up_soc < chip->msoc && is_usb_present(chip) && ibat < 0)
 			return false;	   //charger inserted and has charging current, msoc don't drop.
 		}

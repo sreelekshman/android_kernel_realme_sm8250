@@ -24,8 +24,13 @@
 #include <linux/jiffies.h>
 #include <linux/thermal.h>
 
+#include "touchpanel_prevention.h"
 #include "util_interface/touch_interfaces.h"
 #include "tp_devices.h"
+
+#ifdef CONFIG_TOUCHPANEL_ALGORITHM
+#include "touchpanel_algorithm.h"
+#endif
 
 #ifdef CONFIG_TOUCHPANEL_MTK_PLATFORM
 #include<mt-plat/mtk_boot_common.h>
@@ -191,6 +196,7 @@ typedef enum {
 	MODE_FACE_DETECT,
 	MODE_HEADSET,
 	MODE_WIRELESS_CHARGE,
+	MODE_LIMIT_SWITCH,
 	MODE_PEN_SCAN,
 } work_mode;
 
@@ -368,10 +374,10 @@ struct panel_info {
 	int    report_rate_limit;                       /*chip report rate limit*/
 	int    vid_len;                                 /*Length of tp name show in  test apk*/
 	u32    project_id;
-	uint32_t    platform_support_project[15];
-	uint32_t    platform_support_project_dir[15];
-	char  *platform_support_commandline[15];
-	char  *platform_support_external_name[15];
+	uint32_t    platform_support_project[21];
+	uint32_t    platform_support_project_dir[21];
+	char  *platform_support_commandline[21];
+	char  *platform_support_external_name[21];
 	int    project_num;
 	struct firmware_headfile firmware_headfile;     /*firmware headfile for noflash ic*/
 	struct manufacture_info manufacture_info;       /*touchpanel device info*/
@@ -508,6 +514,11 @@ typedef enum {
 	TYPE_START_RECORD,
 	TYPE_END_RECORD,
 } grip_time_record_type;
+
+typedef enum {
+	TYPE_PENCIL_HAVON = 1,
+	TYPE_PENCIL_MAXEYE = 2,
+} pencil_type;
 
 struct point_state_monitor {
 	u64 time_counter;
@@ -905,6 +916,7 @@ struct touchpanel_data {
 	bool ps_status;                                     /*save ps status, ps near = 1, ps far = 0*/
 	bool resume_finished;                               /* whether tp resume finished */
 	int noise_level;                                     /*save ps status, ps near = 1, ps far = 0*/
+	int high_frame_value;                               /*extremity touch enable or not*/
 	int lcd_fps;                                         /*save lcd refresh*/
 
 #if defined(TPD_USE_EINT)
@@ -988,6 +1000,7 @@ struct touchpanel_data {
 	bool smooth_level_array_support;
 	bool smooth_level_charging_array_support;
 	bool sensitive_level_array_support;
+	bool cs_gpio_need_pull;
 	bool sensitive_level_charging_array_support;
 	bool stop_filter_set_support;
 	u32 smooth_level_array[SMOOTH_LEVEL_NUM];
@@ -1015,11 +1028,25 @@ struct touchpanel_data {
 	struct hrtimer		thermal_timer;
 	struct work_struct get_thermal_work;
 	int last_temp;
+#ifdef CONFIG_TOUCHPANEL_ALGORITHM
+	struct touch_algorithm_info *algo_info;
+#endif
+
 	int irq_num;/*Record the tp irq number*/
 	u64 curr_time;/*Record the interruption time to kernel*/
 	u64 irq_interval;/*Record the interruption time to calculate the reporting rate*/
 	u64 irq_handle_time;/*Record the interruption handle time*/
 	int high_frame_value;
+
+	u8 limit_switch;
+	int dead_zone_l;                                    /*landscape dead zone*/
+	int dead_zone_p;                                    /*portrait dead zone*/
+	int corner_dead_zone_xl;
+	int corner_dead_zone_yl;
+	int corner_dead_zone_xp;
+	int corner_dead_zone_yp;
+	bool project_info;				/*different project using different parameter*/
+	bool oos_edge_limit_support;    /*oos system edge_limit support feature*/
 };
 
 #ifdef CONFIG_OPLUS_TP_APK
@@ -1103,6 +1130,9 @@ struct oplus_touchpanel_operations {
 	void (*set_gesture_state)(void *chip_data, int state);
 	int (*send_temperature)(void *chip_data, int value, bool status);
 	int (*set_high_frame_rate)(void *chip_data, int value, int time);
+#ifdef CONFIG_TOUCHPANEL_ALGORITHM
+	int (*special_points_report)(void *chip_data, struct point_info *points, int max_num);
+#endif
 };
 
 struct aging_test_proc_operations {

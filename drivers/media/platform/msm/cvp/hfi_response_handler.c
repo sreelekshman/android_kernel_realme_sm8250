@@ -17,12 +17,20 @@
 #include "msm_cvp_common.h"
 
 extern struct msm_cvp_drv *cvp_driver;
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #ifndef OPLUS_FEATURE_CAMERA_COMMON
 static int _deprecated_hfi_msg_process(u32 device_id,
 	struct cvp_hfi_msg_session_hdr *pkt,
 	struct msm_cvp_cb_info *info,
 	struct msm_cvp_inst *inst);
 #endif
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 static enum cvp_status hfi_map_err_status(u32 hfi_err)
 {
 	enum cvp_status cvp_err;
@@ -474,6 +482,10 @@ static int __dme_output_cache_operation(struct cvp_hfi_msg_session_hdr *pkt)
 	return rc;
 }
 #endif
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 static int hfi_process_session_cvp_msg(u32 device_id,
 	struct cvp_hfi_msg_session_hdr *pkt,
 	struct msm_cvp_cb_info *info)
@@ -501,6 +513,10 @@ static int hfi_process_session_cvp_msg(u32 device_id,
 		dprintk(CVP_ERR, "%s: invalid session\n", __func__);
 		return -EINVAL;
 	}
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #ifndef OPLUS_FEATURE_CAMERA_COMMON
 	if (inst->deprecate_bitmask) {
 		if (pkt->packet_type == HFI_MSG_SESSION_CVP_DME
@@ -573,6 +589,10 @@ static int hfi_process_session_cvp_msg(u32 device_id,
 #else
 	wake_up_all(&inst->session_queue.wq);
 #endif
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 	info->response_type = HAL_NO_RESP;
 
 	cvp_put_inst(inst);

@@ -588,9 +588,17 @@ void msm_cvp_unmap_buf_cpu(struct msm_cvp_inst *inst, u64 ktid)
 		dprintk(CVP_ERR, "%s: invalid params\n", __func__);
 		return;
 	}
+<<<<<<< HEAD
 #ifdef OPLUS_FEATURE_CAMERA_COMMON
 	ktid &= (FENCE_BIT - 1);
 #endif
+=======
+
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	ktid &= (FENCE_BIT - 1);
+#endif
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 	dprintk(CVP_DBG, "%s: unmap frame %llu\n", __func__, ktid);
 
 	found = false;
@@ -627,6 +635,16 @@ static bool cvp_msg_pending(struct cvp_session_queue *sq,
 	struct cvp_session_msg *mptr, *dummy;
 	bool result = false;
 
+<<<<<<< HEAD
+=======
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+static bool cvp_msg_pending(struct cvp_session_queue *sq,
+				struct cvp_session_msg **msg, u64 *ktid)
+{
+	struct cvp_session_msg *mptr, *dummy;
+	bool result = false;
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 	mptr = NULL;
 	spin_lock(&sq->lock);
 	if (sq->state != QUEUE_ACTIVE) {
@@ -728,6 +746,10 @@ static bool _cvp_msg_pending(struct msm_cvp_inst *inst,
 	return !result;
 }
 #endif
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 static int msm_cvp_session_receive_hfi(struct msm_cvp_inst *inst,
 			struct cvp_kmd_hfi_packet *out_pkt)
 {
@@ -759,7 +781,13 @@ static int msm_cvp_session_receive_hfi(struct msm_cvp_inst *inst,
 	sq = &inst->session_queue;
 	sc = (struct cvp_kmd_session_control *)out_pkt;
 #endif
+<<<<<<< HEAD
 	wait_time = msecs_to_jiffies(CVP_MAX_WAIT_TIME);
+=======
+
+	wait_time = msecs_to_jiffies(CVP_MAX_WAIT_TIME);
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #ifndef OPLUS_FEATURE_CAMERA_COMMON
 	if (wait_event_timeout(sq->wq,
 		_cvp_msg_pending(inst, sq, &msg), wait_time) == 0) {
@@ -801,7 +829,11 @@ static int msm_cvp_session_receive_hfi(struct msm_cvp_inst *inst,
 	}
 
 exit:
+<<<<<<< HEAD
 #else 
+=======
+#else
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 	sq = &inst->session_queue;
 
 	rc = cvp_wait_process_message(inst, sq, NULL, wait_time, out_pkt);
@@ -1134,6 +1166,10 @@ static bool cvp_fence_wait(struct cvp_fence_queue *q,
 	return true;
 }
 #endif
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #define CVP_FENCE_RUN	0x100
 static int msm_cvp_thread_fence_run(void *data)
 {
@@ -1252,6 +1288,10 @@ static int msm_cvp_thread_fence_run(void *data)
 					in_pkt->pkt_data[1]);
 				synx_state = SYNX_STATE_SIGNALED_ERROR;
 			}
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #ifdef OPLUS_FEATURE_CAMERA_COMMON
 			rc = cvp_wait_process_message(inst,
 					&inst->session_queue_fence,
@@ -1634,6 +1674,10 @@ static int msm_cvp_session_process_hfi_fence(
 	rc = msm_cvp_map_buf(inst, in_pkt, offset, buf_num);
 	if (rc)
 		goto free_and_exit;
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #ifdef OPLUS_FEATURE_CAMERA_COMMON
 	cmd_hdr = (struct cvp_hfi_cmd_session_hdr *)in_pkt;
 	cmd_hdr->client_data.kdata |= FENCE_BIT;
@@ -1672,6 +1716,10 @@ exit:
 	cvp_put_inst(s);
 	return rc;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #ifndef OPLUS_FEATURE_CAMERA_COMMON
 static int msm_cvp_session_cvp_dfs_frame_response(
 	struct msm_cvp_inst *inst,
@@ -2286,6 +2334,10 @@ static int msm_cvp_session_start(struct msm_cvp_inst *inst,
 	}
 	sq->state = QUEUE_ACTIVE;
 	spin_unlock(&sq->lock);
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #ifdef OPLUS_FEATURE_CAMERA_COMMON
 	return cvp_fence_thread_start(inst);
 #else
@@ -2339,6 +2391,10 @@ static int msm_cvp_session_stop(struct msm_cvp_inst *inst,
 	spin_unlock(&sq->lock);
 
 	wake_up_all(&inst->session_queue.wq);
+<<<<<<< HEAD
+=======
+
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #ifdef OPLUS_FEATURE_CAMERA_COMMON
 	return cvp_fence_thread_stop(inst);
 #else

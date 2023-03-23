@@ -438,7 +438,6 @@ enum cnss_load_state {
 	CNSS_PROBE_FAIL,
 	CNSS_PROBE_SUCCESS,
 };
-
 #endif /* OPLUS_FEATURE_WIFI_DCS_SWITCH */
 
 #ifdef CONFIG_ARCH_QCOM

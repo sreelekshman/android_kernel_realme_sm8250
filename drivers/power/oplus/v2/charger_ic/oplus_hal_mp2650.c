@@ -88,6 +88,21 @@ static int mp2650_burst_mode_enable(bool enable);
 
 static DEFINE_MUTEX(mp2650_i2c_access);
 
+#define RESUME_TIMEDOUT_MS	1000
+static int mp2650_wait_resume(struct chip_mp2650 *chip)
+{
+	int rc;
+
+	rc = wait_for_completion_timeout(&chip->resume_ack, msecs_to_jiffies(RESUME_TIMEDOUT_MS));
+	if (rc < 0) {
+		if (rc == -ETIMEDOUT)
+			chg_err("wait resume timedout\n");
+		else
+			chg_err("Unknown completion err, rc=%d\n", rc);
+	}
+	return rc;
+}
+
 static int __tongfeng_test_mp2650_write_reg(int reg, int val)
 {
 	int ret = 0;
@@ -1278,6 +1293,10 @@ int mp2650_otg_disable(void)
 
 	if (atomic_read(&chip->charger_suspended) == 1) {
 		return 0;
+	rc = mp2650_wait_resume(chip);
+	if (rc < 0) {
+		chg_err("wait resume error, can't disable otg\n");
+		return rc;
 	}
 
 	mp2650_wireless_set_mps_otg_en_val(0); /* set disable output 5V vbus */
@@ -1609,6 +1628,10 @@ int mp2650_otg_enable(void)
 	}
 	if (atomic_read(&chip->charger_suspended) == 1) {
 		return 0;
+	rc = mp2650_wait_resume(chip);
+	if (rc < 0) {
+		chg_err("wait resume error, can't enable otg\n");
+		return rc;
 	}
 
 	rc = mp2650_burst_mode_enable(true);
@@ -3248,6 +3271,8 @@ static int mp2650_driver_probe(struct i2c_client *client,
 	chg_ic->dev = &client->dev;
 	i2c_set_clientdata(client, chg_ic);
 
+	init_completion(&chg_ic->resume_ack);
+	complete_all(&chg_ic->resume_ack);
 	INIT_DELAYED_WORK(&chg_ic->plugin_work, mp2650_plugin_work);
 
 	charger_ic = chg_ic;
@@ -3327,6 +3352,7 @@ static int mp2650_pm_resume(struct device *dev)
 	}
 
 	atomic_set(&chip->charger_suspended, 0);
+	complete_all(&chip->resume_ack);
 	return 0;
 }
 
@@ -3340,6 +3366,7 @@ static int mp2650_pm_suspend(struct device *dev)
 		return 0;
 	}
 
+	reinit_completion(&chip->resume_ack);
 	atomic_set(&chip->charger_suspended, 1);
 	return 0;
 }
@@ -3359,6 +3386,7 @@ static int mp2650_resume(struct i2c_client *client)
 	}
 
 	atomic_set(&chip->charger_suspended, 0);
+	complete_all(&chip->resume_ack);
 	return 0;
 }
 
@@ -3371,6 +3399,7 @@ static int mp2650_suspend(struct i2c_client *client, pm_message_t mesg)
 		return 0;
 	}
 
+	reinit_completion(&chip->resume_ack);
 	atomic_set(&chip->charger_suspended, 1);
 	return 0;
 }

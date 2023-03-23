@@ -3,6 +3,7 @@
  *
  * This code is based on drivers/scsi/ufs/ufs.h
  * Copyright (C) 2011-2013 Samsung India Software Operations
+ * Copyright (C) 2020 Oplus. All rights reserved.
  *
  * Authors:
  *	Santosh Yaraganavi <santosh.sy@samsung.com>
@@ -223,8 +224,8 @@ enum device_desc_param {
 #endif
 #endif
 	DEVICE_DESC_PARAM_EXT_UFS_FEATURE_SUP	= 0x4F,
-	DEVICE_DESC_PARAM_WB_US_RED_EN		= 0x53,
-	DEVICE_DESC_PARAM_WB_TYPE		= 0x54,
+	DEVICE_DESC_PARAM_WB_US_RED_EN			= 0x53,
+	DEVICE_DESC_PARAM_WB_TYPE				= 0x54,
 	DEVICE_DESC_PARAM_WB_SHARED_ALLOC_UNITS = 0x55,
 #if defined(CONFIG_UFSHID)
 	DEVICE_DESC_PARAM_HID_VER               = 0x59,

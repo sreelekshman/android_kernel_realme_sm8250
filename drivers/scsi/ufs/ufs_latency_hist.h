@@ -9,46 +9,45 @@
 #include <linux/types.h>
 #include <linux/kernel.h>
 
-/* add latency_hist node for ufs latency calculate in sysfs */
 /*
  * X-axis for IO latency histogram support.
  */
 static const u_int64_t latency_x_axis_us[] = {
-	100,
-    200,
-    300,
-    400,
-    500,
-    600,
-    700,
-    800,
-    900,
-    1000,
-    2000,
-    3000,
-    4000,
-    5000,
-    6000,
-    7000,
-    8000,
-    9000,
-    10000,
-    20000,
-    30000,
-    40000,
-    50000,
-    100000,
-    200000,
-    300000,
-    400000,
-    500000,
-    600000,
-    700000,
-    800000,
-    900000,
-    1000000,
-    1500000,
-    2000000
+   100,
+   200,
+   300,
+   400,
+   500,
+   600,
+   700,
+   800,
+   900,
+   1000,
+   2000,
+   3000,
+   4000,
+   5000,
+   6000,
+   7000,
+   8000,
+   9000,
+   10000,
+   20000,
+   30000,
+   40000,
+   50000,
+   100000,
+   200000,
+   300000,
+   400000,
+   500000,
+   600000,
+   700000,
+   800000,
+   900000,
+   1000000,
+   1500000,
+   2000000
 };
 
 #define IO_LAT_HIST_DISABLE         0
@@ -62,7 +61,7 @@ static const u_int64_t latency_x_axis_us[] = {
 #define CHUNCK_SIZE_256K                512
 
 struct io_latency_chunck_size {
-	u_int64_t   chunk_0_count;
+   u_int64_t   chunk_0_count;
 	u_int64_t	chunk_4k_count;
 	u_int64_t   chunk_8k_count;
 	u_int64_t   chunk_8_32k_count;
@@ -88,28 +87,28 @@ io_update_latency_hist(struct io_latency_state *s, u_int64_t delta_us, unsigned 
 		if (delta_us < (u_int64_t)latency_x_axis_us[i])
 			break;
 	s->latency_y_axis[i].latency_axis++;
-	if(!length) {
-		s->latency_y_axis[i].chunk_0_count++;
-	} else if (length > CHUNCK_SIZE_256K) {
-		s->latency_y_axis[i].chunk_above_256k_count++;
-	} else if (length > CHUNCK_SIZE_128K) {
-		s->latency_y_axis[i].chunk_128_256k_count++;
-	} else if (length > CHUNCK_SIZE_64K) {
-		s->latency_y_axis[i].chunk_64_128k_count++;
-	} else if (length > CHUNCK_SIZE_32K) {
-	    s->latency_y_axis[i].chunk_32_64k_count++;
-	} else if (length > CHUNCK_SIZE_8K) {
-        s->latency_y_axis[i].chunk_8_32k_count++;
-	} else if (length == CHUNCK_SIZE_8K) {
-        s->latency_y_axis[i].chunk_8k_count++;
-	} else if (length == CHUNCK_SIZE_4K) {
-        s->latency_y_axis[i].chunk_4k_count++;
+	if(!length){
+      s->latency_y_axis[i].chunk_0_count++;
+	}else if( length > CHUNCK_SIZE_256K){
+	   s->latency_y_axis[i].chunk_above_256k_count++;
+	}else if( length > CHUNCK_SIZE_128K ){
+      s->latency_y_axis[i].chunk_128_256k_count++;
+	}else if( length > CHUNCK_SIZE_64K ){
+      s->latency_y_axis[i].chunk_64_128k_count++;
+	}else if( length > CHUNCK_SIZE_32K ){
+      s->latency_y_axis[i].chunk_32_64k_count++;
+	}else if( length > CHUNCK_SIZE_8K ){
+      s->latency_y_axis[i].chunk_8_32k_count++;
+	}else if( length == CHUNCK_SIZE_8K){
+      s->latency_y_axis[i].chunk_8k_count++;
+	}else if( length == CHUNCK_SIZE_4K ){
+      s->latency_y_axis[i].chunk_4k_count++;
 	}
 	s->latency_elems++;
 	s->latency_sum += delta_us;
 }
 
-ssize_t io_latency_hist_show(char *name, struct io_latency_state *s,
+ssize_t io_latency_hist_show(char* name, struct io_latency_state *s,
 		char *buf, int buf_size);
 
-#endif /* _UFS_LATENCY_HIST_ */
+#endif

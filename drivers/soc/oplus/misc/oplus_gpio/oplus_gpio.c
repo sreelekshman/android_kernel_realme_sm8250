@@ -152,7 +152,11 @@ struct oplus_gpio_info oplus_gpio_info_table[MAX_GPIOS] = {
 };
 static struct delayed_work recover_work;
 
+<<<<<<< HEAD
 static int dual_sim_det_uim2_to_real_sim(void)
+=======
+static int dual_sim_det_uim2_to_real_sim()
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 {
 	int esim_status = -1;
 
@@ -515,7 +519,11 @@ static const struct file_operations oplus_gpio_fops = {
 
 
 extern char *saved_command_line;
+<<<<<<< HEAD
 static void init_esim_status(void)
+=======
+static void init_esim_status()
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 {
 	if (strstr(saved_command_line, "esim.status=1")) {
 		oplus_gpio_info_table[GPIO_TYPE_ESIM].gpio_status = 1;

@@ -265,12 +265,11 @@ void opticalfp_irq_handler_register(opticalfp_handler handler) {
 }
 
 int opticalfp_irq_handler(struct fp_underscreen_info* tp_info) {
-    int i, ret = FP_UNKNOWN;
-    for (i = 0; i < ARRAY_SIZE(g_opticalfp_irq_handlers); i++) {
-        if (g_opticalfp_irq_handlers[i])
-            ret = g_opticalfp_irq_handlers[i](tp_info);
+    if (g_opticalfp_irq_handler) {
+        return g_opticalfp_irq_handler(tp_info);
+    } else {
+        return FP_UNKNOWN;
     }
-    return ret;
 }
 EXPORT_SYMBOL(opticalfp_irq_handler);
 

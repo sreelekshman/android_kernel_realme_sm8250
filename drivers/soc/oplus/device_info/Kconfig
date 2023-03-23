@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 config OPLUS_DEVICE_IFNO
+=======
+config OPLUS_DEVICE_INFO
+>>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
   bool "config oplus devinfo software"
   help
     define this config to compile devinfo.c for device register
