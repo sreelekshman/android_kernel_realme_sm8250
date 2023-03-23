@@ -11,9 +11,15 @@
 **   Hu.Jie          2018/03/17        1.0           Build this moudle
 ******************************************************************/
 #include "oplus_dsi_support.h"
+<<<<<<< HEAD
 #include <soc/oplus/boot_mode.h>
 #include <soc/oplus/oplus_project.h>
 #include <soc/oplus/device_info.h>
+=======
+#include <soc/oppo/boot_mode.h>
+#include <soc/oppo/oppo_project.h>
+#include <soc/oppo/device_info.h>
+>>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 #include <linux/notifier.h>
 #include <linux/module.h>
 

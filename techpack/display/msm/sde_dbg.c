@@ -3566,6 +3566,10 @@ static void _sde_dump_array(struct sde_dbg_reg_base *blk_arr[],
 		pr_err("Failed to allocate memory for reg_dump_addr size:%d\n",
 			reg_dump_size);
 
+	if (!dbg_base->reg_dump_addr)
+		pr_err("Failed to allocate memory for reg_dump_addr size:%d\n",
+			reg_dump_size);
+
 	if (dump_all)
 		sde_evtlog_dump_all(sde_dbg_base.evtlog);
 
