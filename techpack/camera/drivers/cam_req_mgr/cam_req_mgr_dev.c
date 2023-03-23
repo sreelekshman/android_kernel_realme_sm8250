@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2016-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2020, Oplus. All rights reserved.
  */
 
 #include <linux/module.h>
@@ -22,8 +23,14 @@
 #include <linux/slub_def.h>
 #include "cam_trace.h"
 
+<<<<<<< HEAD
 #ifdef VENDOR_EDIT
 #define CAM_REQ_MGR_EVENT_MAX 64
+=======
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+//zhangzhengrong@camera modify for kernel event Q overlow issue case04395272
+#define CAM_REQ_MGR_EVENT_MAX 80
+>>>>>>> 0261548dd41b (techpack: camera: Import changes from RealmeUI 4.0)
 #else
 #define CAM_REQ_MGR_EVENT_MAX 30
 #endif

@@ -1,6 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
  * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
+<<<<<<< HEAD
+=======
+ * Copyright (c) 2020, Oplus. All rights reserved.
+>>>>>>> 0261548dd41b (techpack: camera: Import changes from RealmeUI 4.0)
  */
 
 #ifndef _CAM_SENSOR_DEV_H_
@@ -44,6 +48,19 @@ enum cam_sensor_state_t {
 	CAM_SENSOR_CONFIG,
 	CAM_SENSOR_START,
 };
+
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+enum cam_sensor_power_state {
+	CAM_SENSOR_POWER_OFF,
+	CAM_SENSOR_POWER_ON,
+};
+
+enum cam_sensor_setting_state {
+	CAM_SENSOR_SETTING_WRITE_INVALID,
+	CAM_SENSOR_SETTING_WRITE_SUCCESS,
+};
+#endif
+
 
 /**
  * struct intf_params
@@ -111,6 +128,19 @@ struct cam_sensor_ctrl_t {
 	bool bob_pwm_switch;
 	uint32_t last_flush_req;
 	uint16_t pipeline_delay;
+<<<<<<< HEAD
+=======
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	bool laser_support;
+	bool sem1815s_ois_support;
+	struct mutex sensor_power_state_mutex;
+	struct mutex sensor_initsetting_mutex;
+	enum cam_sensor_power_state sensor_power_state;
+	enum cam_sensor_setting_state sensor_initsetting_state;
+	struct task_struct *sensor_open_thread;
+
+#endif
+>>>>>>> 0261548dd41b (techpack: camera: Import changes from RealmeUI 4.0)
 };
 
 #endif /* _CAM_SENSOR_DEV_H_ */

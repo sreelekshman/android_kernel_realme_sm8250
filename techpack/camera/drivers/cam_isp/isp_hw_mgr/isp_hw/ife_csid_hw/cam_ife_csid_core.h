@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
  * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2020, Oplus. All rights reserved.
  */
 
 #ifndef _CAM_IFE_CSID_HW_H_
@@ -39,6 +40,7 @@
 #define CSID_CSI2_RX_INFO_TG_DONE                 BIT(25)
 #define CSID_CSI2_RX_ERROR_TG_FIFO_OVERFLOW       BIT(26)
 #define CSID_CSI2_RX_INFO_RST_DONE                BIT(27)
+
 
 #define CSID_TOP_IRQ_DONE                         BIT(0)
 #define CSID_PATH_INFO_RST_DONE                   BIT(1)
@@ -452,7 +454,6 @@ struct cam_ife_csid_tpg_cfg  {
  * @cnt:              Cid resource reference count.
  * @tpg_set:          Tpg used for this cid resource
  * @is_valid_vc1_dt1: Valid vc1 and dt1
- * @init_cnt          cid resource init count
  *
  */
 struct cam_ife_csid_cid_data {
@@ -463,7 +464,6 @@ struct cam_ife_csid_cid_data {
 	uint32_t                     cnt;
 	uint32_t                     tpg_set;
 	uint32_t                     is_valid_vc1_dt1;
-	uint32_t                     init_cnt;
 };
 
 
@@ -520,6 +520,22 @@ struct cam_ife_csid_path_cfg {
 };
 
 /**
+ * struct cam_csid_evt_payload- payload for csid hw event
+ * @list       : list head
+ * @evt_type   : Event type from CSID
+ * @irq_status : IRQ Status register
+ * @hw_idx     : Hw index
+ * @priv       : Private data of payload
+ */
+struct cam_csid_evt_payload {
+	struct list_head   list;
+	uint32_t           evt_type;
+	uint32_t           irq_status[CAM_IFE_CSID_IRQ_REG_MAX];
+	uint32_t           hw_idx;
+	void              *priv;
+};
+
+/**
  * struct cam_ife_csid_hw- csid hw device resources data
  *
  * @hw_intf:                  contain the csid hw interface information
@@ -555,6 +571,8 @@ struct cam_ife_csid_path_cfg {
  *
  * @first_sof_ts              first bootime stamp at the start
  * @prev_qtimer_ts            stores csid timestamp
+ * @fatal_err_detected        flag to indicate fatal errror is reported
+ * @event_cb                  Callback to hw manager if CSID event reported
  */
 struct cam_ife_csid_hw {
 	struct cam_hw_intf              *hw_intf;
@@ -580,6 +598,9 @@ struct cam_ife_csid_hw {
 	uint64_t                         csid_debug;
 	uint64_t                         clk_rate;
 	bool                             sof_irq_triggered;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	bool                             is_reseting;
+#endif
 	uint32_t                         irq_debug_cnt;
 	uint32_t                         error_irq_count;
 	uint32_t                         device_enabled;
@@ -588,6 +609,8 @@ struct cam_ife_csid_hw {
 	uint32_t                         binning_supported;
 	uint64_t                         prev_boot_timestamp;
 	uint64_t                         prev_qtimer_ts;
+	bool                             fatal_err_detected;
+	cam_hw_mgr_event_cb_func         event_cb;
 };
 
 int cam_ife_csid_hw_probe_init(struct cam_hw_intf  *csid_hw_intf,

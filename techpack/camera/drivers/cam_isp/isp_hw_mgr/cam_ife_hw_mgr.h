@@ -183,6 +183,9 @@ struct cam_ife_hw_mgr_ctx {
 	bool                            is_fe_enable;
 	bool                            is_dual;
 	struct timespec64               ts;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	uint32_t                        dual_ife_irq_mismatch_cnt;
+#endif
 };
 
 /**

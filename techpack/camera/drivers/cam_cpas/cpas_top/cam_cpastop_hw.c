@@ -549,6 +549,10 @@ static int cam_cpastop_poweron(struct cam_hw_info *cpas_hw)
 		reg_val |= errata_wa->data.reg_info.value;
 		scm_io_write(errata_wa->data.reg_info.offset, reg_val);
 	}
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	cpas_core = (struct cam_cpas *) cpas_hw->core_info;
+	soc_info = &cpas_hw->soc_info;
+	reg_base_index = cpas_core->regbase_index[CAM_CPAS_REG_CAMNOC];
 
 	cpas_core = (struct cam_cpas *) cpas_hw->core_info;
 	soc_info = &cpas_hw->soc_info;

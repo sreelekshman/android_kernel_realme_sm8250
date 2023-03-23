@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2020, Oplus. All rights reserved.
  */
 
 #include <linux/module.h>
@@ -45,6 +46,14 @@ static int cam_csiphy_notify_secure_mode(struct csiphy_device *csiphy_dev,
 		CAM_ERR(CAM_CSIPHY, "scm call to hypervisor failed");
 		return -EINVAL;
 	}
+
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	CAM_INFO(CAM_CSIPHY, "PHY : %d offset: %d SEC: %d Mask: %d",
+					csiphy_dev->soc_info.index,
+					offset,
+					protect,
+					csiphy_dev->csiphy_cpas_cp_reg_mask[offset]);
+#endif
 
 	return 0;
 }
@@ -821,6 +830,18 @@ int32_t cam_csiphy_core_cfg(void *phy_dev,
 		break;
 	case CAM_RELEASE_DEV: {
 		struct cam_release_dev_cmd release;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+		int32_t offset;
+		//wangyongwu@Camera add for case:04394854
+		if (csiphy_dev->csiphy_state == CAM_CSIPHY_START) {
+			rc = cam_csiphy_disable_hw(csiphy_dev);
+			if (rc < 0)
+				CAM_ERR(CAM_CSIPHY, "Failed in csiphy release");
+			rc = cam_cpas_stop(csiphy_dev->cpas_handle);
+			if (rc < 0)
+				CAM_ERR(CAM_CSIPHY, "de-voting CPAS: %d", rc);
+		}
+#endif
 
 		if (csiphy_dev->csiphy_state == CAM_CSIPHY_START) {
 			rc = cam_csiphy_disable_hw(csiphy_dev);
@@ -843,6 +864,25 @@ int32_t cam_csiphy_core_cfg(void *phy_dev,
 			rc = -EFAULT;
 			goto release_mutex;
 		}
+
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+		offset = cam_csiphy_get_instance_offset(csiphy_dev,
+			release.dev_handle);
+		if (offset < 0 || offset >= CSIPHY_MAX_INSTANCES) {
+			CAM_ERR(CAM_CSIPHY, "Invalid offset");
+			goto release_mutex;
+		}
+
+		if (csiphy_dev->csiphy_info.secure_mode[offset])
+			cam_csiphy_notify_secure_mode(
+				csiphy_dev,
+				CAM_SECURE_MODE_NON_SECURE, offset);
+
+		csiphy_dev->csiphy_info.secure_mode[offset] =
+			CAM_SECURE_MODE_NON_SECURE;
+
+		csiphy_dev->csiphy_cpas_cp_reg_mask[offset] = 0x0;
+#endif
 
 		rc = cam_destroy_device_hdl(release.dev_handle);
 		if (rc < 0)
@@ -971,6 +1011,9 @@ int32_t cam_csiphy_core_cfg(void *phy_dev,
 		}
 		csiphy_dev->start_dev_count++;
 		csiphy_dev->csiphy_state = CAM_CSIPHY_START;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+		CAM_INFO(CAM_CSIPHY, "csiphy:%d is enabled", csiphy_dev->soc_info.index);
+#endif
 	}
 		break;
 	case CAM_CONFIG_DEV_EXTERNAL: {

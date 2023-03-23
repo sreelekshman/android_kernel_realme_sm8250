@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
- * Copyright (c) 2024, Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2020, Oplus. All rights reserved.
  */
 
 #include <linux/module.h>
@@ -19,393 +19,7 @@
 #include <linux/oem/project_info.h>
 #endif
 
-struct camera_vendor_match_tbl {
-	uint16_t sensor_id;
-	char sensor_name[32];
-	char vendor_name[32];
-};
-
-static struct camera_vendor_match_tbl match_tbl[] = {
-	{0x586,  "imx586", "Sony"    },
-	{0x30d5, "s5k3m5", "Samsung" },
-	{0x5035, "gc5035", "Galaxyc"  },
-	{0x471,  "imx471", "Sony"    },
-	{0x481,  "imx481", "Sony"    },
-	{0x2375, "gc2375", "Galaxyc"  },
-        {0x689,  "imx689", "Sony"    },
-        {0x0616, "imx616", "Sony"    },
-        {0x4608, "hi846",  "Hynix"   },
-        {0x8054, "gc8054", "Galaxyc" },
-        {0x2b,   "ov02b10","OmniVision" },
-        {0x88,   "ov8856", "OmniVision" },
-        {0x02,   "gc02m1b", "Galaxyc" },
-};
-
-
-/******************** GC5035_OTP_EDIT_END*******************/
-struct cam_sensor_dpc_reg_setting_array {
-	struct cam_sensor_i2c_reg_array reg_setting[25];
-	unsigned short size;
-	enum camera_sensor_i2c_type addr_type;
-	enum camera_sensor_i2c_type data_type;
-	unsigned short delay;
-};
-
-struct cam_sensor_dpc_reg_setting_array gc5035OTPWrite_setting[7] = {
-#include "CAM_GC5035_SPC_SENSOR_SETTINGS.h"
-};
-
-uint32_t totalDpcNum = 0;
-uint32_t totalDpcFlag = 0;
-uint32_t gc5035_chipversion_buffer[26]={0};
-
-static int sensor_gc5035_get_dpc_data(struct cam_sensor_ctrl_t * s_ctrl)
-{
-	int rc = 0;
-	uint32_t gc5035_dpcinfo[3] = {0};
-	uint32_t i;
-	uint32_t dpcinfoOffet = 0xcd;
-	uint32_t chipPage8Offet = 0xd0;
-	uint32_t chipPage9Offet = 0xc0;
-
-	struct cam_sensor_i2c_reg_setting sensor_setting;
-	/*write otp read init settings*/
-	sensor_setting.reg_setting = gc5035OTPWrite_setting[0].reg_setting;
-	sensor_setting.addr_type = gc5035OTPWrite_setting[0].addr_type;
-	sensor_setting.data_type = gc5035OTPWrite_setting[0].data_type;
-	sensor_setting.size = gc5035OTPWrite_setting[0].size;
-	sensor_setting.delay = gc5035OTPWrite_setting[0].delay;
-
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-
-	if (rc < 0) {
-	    CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to write sensor setting");
-	    return rc;
-	}
-	/*write dpc page0 setting*/
-	sensor_setting.reg_setting = gc5035OTPWrite_setting[1].reg_setting;
-	sensor_setting.addr_type = gc5035OTPWrite_setting[1].addr_type;
-	sensor_setting.data_type = gc5035OTPWrite_setting[1].data_type;
-	sensor_setting.size = gc5035OTPWrite_setting[1].size;
-	sensor_setting.delay = gc5035OTPWrite_setting[1].delay;
-
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-
-	if (rc < 0) {
-	    CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to write sensor setting");
-	    return rc;
-	}
-
-	/*read dpc data*/
-	for (i = 0; i < 3; i++) {
-	    rc = camera_io_dev_read(
-	         &(s_ctrl->io_master_info),
-	         dpcinfoOffet + i,
-	         &gc5035_dpcinfo[i], CAMERA_SENSOR_I2C_TYPE_BYTE,
-	         CAMERA_SENSOR_I2C_TYPE_BYTE);
-	    if (rc < 0) {
-	        CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to read dpc info sensor setting");
-	        break;
-	    }
-            CAM_ERR(CAM_SENSOR, "info i=%d addr=0x%x data=0x%x",i,dpcinfoOffet + i,gc5035_dpcinfo[i]);
-	}
-
-	if (rc < 0)
-	   return rc;
-	/*close read data*/
-	sensor_setting.reg_setting = gc5035OTPWrite_setting[2].reg_setting;
-	sensor_setting.addr_type = gc5035OTPWrite_setting[2].addr_type;
-	sensor_setting.data_type = gc5035OTPWrite_setting[2].data_type;
-	sensor_setting.size = gc5035OTPWrite_setting[2].size;
-	sensor_setting.delay = gc5035OTPWrite_setting[2].delay;
-
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-	if (rc < 0) {
-	    CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to write sensor setting");
-	    return rc;
-	}
-
-	for (i = 0; i < 3; i++) {
-	    CAM_DBG(CAM_SENSOR, "gc5035SpcWrite_setting gc5035_dpcinfo[%d] = %x",i,gc5035_dpcinfo[i]);
-	}
-	if (gc5035_dpcinfo[0] == 1) {
-	    totalDpcFlag = 1;
-	    totalDpcNum = gc5035_dpcinfo[1] + gc5035_dpcinfo[2] ;
-	    CAM_INFO(CAM_SENSOR, "gc5035SpcWrite_setting gc5035_dpcinfo[1] = %d",gc5035_dpcinfo[1]);
-	    CAM_INFO(CAM_SENSOR, "gc5035SpcWrite_setting gc5035_dpcinfo[2] = %d",gc5035_dpcinfo[2]);
-	    CAM_INFO(CAM_SENSOR, "gc5035SpcWrite_setting totalDpcNum = %d",totalDpcNum);
-
-	}
-	//write for update reg for page 8
-	sensor_setting.reg_setting = gc5035OTPWrite_setting[5].reg_setting;
-	sensor_setting.addr_type = gc5035OTPWrite_setting[5].addr_type;
-	sensor_setting.data_type = gc5035OTPWrite_setting[5].data_type;
-	sensor_setting.size = gc5035OTPWrite_setting[5].size;
-	sensor_setting.delay = gc5035OTPWrite_setting[5].delay;
-
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-	if (rc < 0) {
-	    CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to write sensor setting");
-	    return rc;
-	}
-	for (i = 0; i < 0x10; i++) {
-	    rc = camera_io_dev_read(
-	         &(s_ctrl->io_master_info),
-	         chipPage8Offet + i,
-	         &gc5035_chipversion_buffer[i], CAMERA_SENSOR_I2C_TYPE_BYTE,
-	         CAMERA_SENSOR_I2C_TYPE_BYTE);
-	    if (rc < 0) {
-	        CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to read dpc info sensor setting");
-	        break;
-	    }
-	}
-	/*close read data*/
-	sensor_setting.reg_setting = gc5035OTPWrite_setting[2].reg_setting;
-	sensor_setting.addr_type = gc5035OTPWrite_setting[2].addr_type;
-	sensor_setting.data_type = gc5035OTPWrite_setting[2].data_type;
-	sensor_setting.size = gc5035OTPWrite_setting[2].size;
-	sensor_setting.delay = gc5035OTPWrite_setting[2].delay;
-
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-	if (rc < 0) {
-	    CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to write sensor setting");
-	    return rc;
-	}
-	//write for update reg for page 9
-	sensor_setting.reg_setting = gc5035OTPWrite_setting[6].reg_setting;
-	sensor_setting.addr_type = gc5035OTPWrite_setting[6].addr_type;
-	sensor_setting.data_type = gc5035OTPWrite_setting[6].data_type;
-	sensor_setting.size = gc5035OTPWrite_setting[6].size;
-	sensor_setting.delay = gc5035OTPWrite_setting[6].delay;
-
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-	if (rc < 0) {
-	    CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to write sensor setting");
-	    return rc;
-	}
-	for (i = 0x00; i < 0x0a; i++) {
-	    rc = camera_io_dev_read(
-	          &(s_ctrl->io_master_info),
-	          chipPage9Offet + i,
-	          &gc5035_chipversion_buffer[0x10+i], CAMERA_SENSOR_I2C_TYPE_BYTE,
-	          CAMERA_SENSOR_I2C_TYPE_BYTE);
-	    if (rc < 0) {
-	        CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to read dpc info sensor setting");
-	        break;
-	    }
-	}
-	/*close read data*/
-	sensor_setting.reg_setting = gc5035OTPWrite_setting[2].reg_setting;
-	sensor_setting.addr_type = gc5035OTPWrite_setting[2].addr_type;
-	sensor_setting.data_type = gc5035OTPWrite_setting[2].data_type;
-	sensor_setting.size = gc5035OTPWrite_setting[2].size;
-	sensor_setting.delay = gc5035OTPWrite_setting[2].delay;
-
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-	if (rc < 0) {
-	    CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to write sensor setting");
-	    return rc;
-	}
-        CAM_INFO(CAM_SENSOR, "gc5035S get dpc setting success");
-	return rc;
-
-}
-
-static int sensor_gc5035_write_dpc_data(struct cam_sensor_ctrl_t * s_ctrl)
-{
-	int rc = 0;
-	struct cam_sensor_i2c_reg_array gc5035SpcTotalNum_setting[2];
-	struct cam_sensor_i2c_reg_setting sensor_setting;
-	/*for test
-	struct cam_sensor_i2c_reg_array gc5035SRAM_setting;
-	uint32_t temp_val[4];
-	int j,i;*/
-
-	if (totalDpcFlag == 0)
-		return 0;
-
-	sensor_setting.reg_setting = gc5035OTPWrite_setting[3].reg_setting;
-	sensor_setting.addr_type = gc5035OTPWrite_setting[3].addr_type;
-	sensor_setting.data_type = gc5035OTPWrite_setting[3].data_type;
-	sensor_setting.size = gc5035OTPWrite_setting[3].size;
-	sensor_setting.delay = gc5035OTPWrite_setting[3].delay;
-
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-
-	if (rc < 0) {
-	    CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to write sensor setting");
-	    return rc;
-	}
-	gc5035SpcTotalNum_setting[0].reg_addr = 0x01;
-	gc5035SpcTotalNum_setting[0].reg_data = (totalDpcNum >> 8) & 0x07;
-	gc5035SpcTotalNum_setting[0].delay = gc5035SpcTotalNum_setting[0].data_mask = 0;
-
-	gc5035SpcTotalNum_setting[1].reg_addr = 0x02;
-	gc5035SpcTotalNum_setting[1].reg_data = totalDpcNum & 0xff;
-	gc5035SpcTotalNum_setting[1].delay = gc5035SpcTotalNum_setting[1].data_mask = 0;
-
-	sensor_setting.reg_setting = gc5035SpcTotalNum_setting;
-	sensor_setting.addr_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
-	sensor_setting.data_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
-	sensor_setting.size = 2;
-	sensor_setting.delay = 0;
-
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-
-	if (rc < 0) {
-	    CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to write sensor setting");
-	    return rc;
-	}
-
-	sensor_setting.reg_setting = gc5035OTPWrite_setting[4].reg_setting;
-	sensor_setting.addr_type = gc5035OTPWrite_setting[4].addr_type;
-	sensor_setting.data_type = gc5035OTPWrite_setting[4].data_type;
-	sensor_setting.size = gc5035OTPWrite_setting[4].size;
-	sensor_setting.delay = gc5035OTPWrite_setting[4].delay;
-
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-
-	if (rc < 0) {
-	    CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to write sensor setting");
-	    return rc;
-	}
-        CAM_INFO(CAM_SENSOR, "gc5035SpcWrite_setting  write sensor setting success");
-        /*for test
-        gc5035SpcTotalNum_setting[0].reg_addr = 0xfe;
-	gc5035SpcTotalNum_setting[0].reg_data = 0x02;
-	gc5035SpcTotalNum_setting[0].delay = gc5035SpcTotalNum_setting[0].data_mask = 0;
-
-	gc5035SpcTotalNum_setting[1].reg_addr = 0xbe;
-	gc5035SpcTotalNum_setting[1].reg_data = 0x00;
-	gc5035SpcTotalNum_setting[1].delay = gc5035SpcTotalNum_setting[1].data_mask = 0;
-
-	sensor_setting.reg_setting = gc5035SpcTotalNum_setting;
-	sensor_setting.addr_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
-	sensor_setting.data_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
-	sensor_setting.size = 2;
-	sensor_setting.delay = 0;
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-
-	if (rc < 0) {
-	    CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to write sensor setting");
-	    return rc;
-	}
-	for (i=0; i<totalDpcNum*4; i++) {
-	gc5035SRAM_setting.reg_addr = 0xaa;
-	gc5035SRAM_setting.reg_data = i;
-	gc5035SRAM_setting.delay = gc5035SRAM_setting.data_mask = 0;
-	sensor_setting.reg_setting = &gc5035SRAM_setting;
-	sensor_setting.addr_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
-	sensor_setting.data_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
-	sensor_setting.size = 1;
-	sensor_setting.delay = 0;
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-	for (j=0; j<4; j++) {
-	    rc = camera_io_dev_read(
-	         &(s_ctrl->io_master_info),
-	         0xac,
-	         &temp_val[j], CAMERA_SENSOR_I2C_TYPE_BYTE,
-	         CAMERA_SENSOR_I2C_TYPE_BYTE);
-	    if (rc < 0) {
-	       CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to read dpc info sensor setting");
-	       break;
-	    }
-	}
-	CAM_ERR(CAM_SENSOR,"GC5035_OTP_GC val0 = 0x%x , val1 = 0x%x , val2 = 0x%x,val3 = 0x%x \n",
-	temp_val[0],temp_val[1],temp_val[2],temp_val[3]);
-	CAM_ERR(CAM_SENSOR,"GC5035_OTP_GC x = %d , y = %d ,type = %d \n",
-	        ((temp_val[1]&0x0f)<<8) + temp_val[0],((temp_val[2]&0x7f)<<4) + ((temp_val[1]&0xf0)>>4),(((temp_val[3]&0x01)<<1)+((temp_val[2]&0x80)>>7)));
-	}
-
-	gc5035SpcTotalNum_setting[0].reg_addr = 0xbe;
-	gc5035SpcTotalNum_setting[0].reg_data = 0x01;
-	gc5035SpcTotalNum_setting[0].delay = gc5035SpcTotalNum_setting[0].data_mask = 0;
-
-	gc5035SpcTotalNum_setting[1].reg_addr = 0xfe;
-	gc5035SpcTotalNum_setting[1].reg_data = 0x00;
-	gc5035SpcTotalNum_setting[1].delay = gc5035SpcTotalNum_setting[1].data_mask = 0;
-
-	sensor_setting.reg_setting = gc5035SpcTotalNum_setting;
-	sensor_setting.addr_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
-	sensor_setting.data_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
-	sensor_setting.size = 2;
-	sensor_setting.delay = 0;
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-
-	if (rc < 0) {
-	   CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to write sensor setting");
-	   return rc;
-	}
-        */
-	return rc;
-}
-
-static int sensor_gc5035_update_reg(struct cam_sensor_ctrl_t * s_ctrl)
-{
-	int rc = -1;
-	uint8_t flag_chipv = 0;
-	int i = 0;
-	uint8_t VALID_FLAG = 0x01;
-	uint8_t CHIPV_FLAG_OFFSET = 0x0;
-	uint8_t CHIPV_OFFSET = 0x01;
-	uint8_t reg_setting_size = 0;
-	struct cam_sensor_i2c_reg_array gc5035_update_reg_setting[20];
-	struct cam_sensor_i2c_reg_setting sensor_setting;
-	CAM_DBG(CAM_SENSOR,"Enter");
-
-	flag_chipv = gc5035_chipversion_buffer[CHIPV_FLAG_OFFSET];
-	CAM_DBG(CAM_SENSOR,"gc5035 otp chipv flag_chipv: 0x%x", flag_chipv);
-	if (VALID_FLAG != (flag_chipv & 0x03)) {
-	    CAM_ERR(CAM_SENSOR,"gc5035 otp chip regs data is Empty/Invalid!");
-	    return rc;
-	}
-
-	for (i = 0; i < 5; i++) {
-	    if (VALID_FLAG == ((gc5035_chipversion_buffer[CHIPV_OFFSET + 5 * i] >> 3) & 0x01)) {
-	        gc5035_update_reg_setting[reg_setting_size].reg_addr = 0xfe;
-	        gc5035_update_reg_setting[reg_setting_size].reg_data = gc5035_chipversion_buffer[CHIPV_OFFSET + 5 * i] & 0x07;
-	        gc5035_update_reg_setting[reg_setting_size].delay = gc5035_update_reg_setting[reg_setting_size].data_mask = 0;
-	        reg_setting_size++;
-	        gc5035_update_reg_setting[reg_setting_size].reg_addr = gc5035_chipversion_buffer[CHIPV_OFFSET + 5 * i + 1];
-	        gc5035_update_reg_setting[reg_setting_size].reg_data = gc5035_chipversion_buffer[CHIPV_OFFSET + 5 * i + 2];
-	        gc5035_update_reg_setting[reg_setting_size].delay = gc5035_update_reg_setting[reg_setting_size].data_mask = 0;
-	        reg_setting_size++;
-
-	        CAM_DBG(CAM_SENSOR,"gc5035 otp chipv : 0xfe=0x%x, addr[%d]=0x%x, value[%d]=0x%x", gc5035_chipversion_buffer[CHIPV_OFFSET +  5 * i] & 0x07,i*2,
-	                gc5035_chipversion_buffer[CHIPV_OFFSET + 5 * i + 1],i*2,gc5035_chipversion_buffer[CHIPV_OFFSET + 5 * i + 2]);
-	    }
-	    if (VALID_FLAG == ((gc5035_chipversion_buffer[CHIPV_OFFSET + 5 * i] >> 7) & 0x01)) {
-	        gc5035_update_reg_setting[reg_setting_size].reg_addr = 0xfe;
-	        gc5035_update_reg_setting[reg_setting_size].reg_data = (gc5035_chipversion_buffer[CHIPV_OFFSET + 5 * i] & 0x70) >> 4;
-	        gc5035_update_reg_setting[reg_setting_size].delay = gc5035_update_reg_setting[reg_setting_size].data_mask = 0;
-	        reg_setting_size++;
-	        gc5035_update_reg_setting[reg_setting_size].reg_addr = gc5035_chipversion_buffer[CHIPV_OFFSET + 5 * i + 3];
-	        gc5035_update_reg_setting[reg_setting_size].reg_data = gc5035_chipversion_buffer[CHIPV_OFFSET + 5 * i + 4];
-	        gc5035_update_reg_setting[reg_setting_size].delay = gc5035_update_reg_setting[reg_setting_size].data_mask = 0;
-	        reg_setting_size++;
-
-	        CAM_DBG(CAM_SENSOR,"gc5035 otp chipv : 0xfe=0x%x, addr[%d]=0x%x, value[%d]=0x%x", (gc5035_chipversion_buffer[CHIPV_OFFSET + 5 * i] & 0x70) >> 4,i*2+1,
-	                gc5035_chipversion_buffer[CHIPV_OFFSET + 5 * i + 3],i*2+1,gc5035_chipversion_buffer[CHIPV_OFFSET + 5 * i + 4]);
-	    }
-	}
-	sensor_setting.reg_setting = gc5035_update_reg_setting;
-	sensor_setting.addr_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
-	sensor_setting.data_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
-	sensor_setting.size = reg_setting_size;
-	sensor_setting.delay = 0;
-
-	rc = camera_io_dev_write(&(s_ctrl->io_master_info), &sensor_setting);
-
-	if (rc < 0) {
-	    CAM_ERR(CAM_SENSOR, "gc5035SpcWrite_setting Failed to write sensor setting");
-	    return rc;
-	}
-	rc = 0;
-	CAM_DBG(CAM_SENSOR,"Exit");
-	return rc;
-
-}
-/******************** GC5035_OTP_EDIT_END*******************/
+#include "oplus_cam_sensor_core.h"
 
 static void cam_sensor_update_req_mgr(
 	struct cam_sensor_ctrl_t *s_ctrl,
@@ -997,8 +611,30 @@ void cam_sensor_shutdown(struct cam_sensor_ctrl_t *s_ctrl)
 	cam_sensor_release_stream_rsc(s_ctrl);
 	cam_sensor_release_per_frame_resource(s_ctrl);
 
-	if (s_ctrl->sensor_state != CAM_SENSOR_INIT)
-		cam_sensor_power_down(s_ctrl);
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	if (s_ctrl->sensor_state != CAM_SENSOR_INIT){
+			mutex_lock(&(s_ctrl->sensor_power_state_mutex));
+			if(s_ctrl->sensor_power_state == CAM_SENSOR_POWER_ON)
+			{
+				rc = cam_sensor_power_down(s_ctrl);
+				if(rc < 0) {
+					CAM_ERR(CAM_SENSOR, "sensor power down faild!");
+				 } else {
+					CAM_ERR(CAM_SENSOR, "sensor power down success sensor id 0x%x",s_ctrl->sensordata->slave_info.sensor_id);
+					s_ctrl->sensor_power_state = CAM_SENSOR_POWER_OFF;
+					mutex_lock(&(s_ctrl->sensor_initsetting_mutex));
+					s_ctrl->sensor_initsetting_state = CAM_SENSOR_SETTING_WRITE_INVALID;
+					mutex_unlock(&(s_ctrl->sensor_initsetting_mutex));
+				 }
+			} else {
+				CAM_ERR(CAM_SENSOR, "sensor have power down!");
+			}
+			mutex_unlock(&(s_ctrl->sensor_power_state_mutex));
+	}
+#else
+		if (s_ctrl->sensor_state != CAM_SENSOR_INIT)
+			cam_sensor_power_down(s_ctrl);
+#endif
 
 	if (s_ctrl->bridge_intf.device_hdl != -1) {
 		rc = cam_destroy_device_hdl(s_ctrl->bridge_intf.device_hdl);
@@ -1028,6 +664,7 @@ int cam_sensor_match_id(struct cam_sensor_ctrl_t *s_ctrl)
 	int rc = 0;
 	uint32_t chipid = 0;
         uint32_t vendor_id = 0;
+	int retry = 0;
 	struct cam_camera_slave_info *slave_info;
 	int hb_id=0;
 	uint32_t slave_sid = 0;
@@ -1058,13 +695,37 @@ int cam_sensor_match_id(struct cam_sensor_ctrl_t *s_ctrl)
 		return -EINVAL;
 	}
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	for (retry = 0; retry < 3; retry ++) {
+		if (chipid == 0) {
+			rc = camera_io_dev_read(
+				&(s_ctrl->io_master_info),
+				slave_info->sensor_id_reg_addr,
+				&chipid, slave_info->addr_type,
+				CAMERA_SENSOR_I2C_TYPE_WORD);
+		}
+	}
+
+	if (slave_info->sensor_id == 0x02d0 || slave_info->sensor_id == 0x02e0 || slave_info->sensor_id == 0xF708 ||
+		slave_info->sensor_id == 0xE708 || slave_info->sensor_id == 0x0689 || slave_info->sensor_id == 0x2b03 ||
+		slave_info->sensor_id == 0x25   || slave_info->sensor_id == 0x5035 || slave_info->sensor_id == 0x0766 ||
+		slave_info->sensor_id == 0x766F || slave_info->sensor_id == 0x766E || slave_info->sensor_id == 0x5a64 ||
+		slave_info->sensor_id == 0x6b64) {
+		chipid = oplus_cam_sensor_addr_is_byte_type(s_ctrl, slave_info);
+	}
+
+	if (slave_info->sensor_id == 0x5035) {
+		sensor_gc5035_get_dpc_data(s_ctrl);
+	}
+#else
 	rc = camera_io_dev_read(
 		&(s_ctrl->io_master_info),
 		slave_info->sensor_id_reg_addr,
 		&chipid,slave_info->addr_type,
-		slave_info->data_type);
+		CAMERA_SENSOR_I2C_TYPE_WORD);
+#endif
 
-	CAM_DBG(CAM_SENSOR, "read id: 0x%x expected id 0x%x:",
+	CAM_WARN(CAM_SENSOR, "read id: 0x%x expected id 0x%x:",
 		chipid, slave_info->sensor_id);
 
 	if (cam_sensor_id_by_mask(s_ctrl, chipid) != slave_info->sensor_id) {
@@ -1170,6 +831,9 @@ int cam_sensor_match_id(struct cam_sensor_ctrl_t *s_ctrl)
                 s_ctrl->io_master_info.cci_client->i2c_freq_mode = I2C_FAST_PLUS_MODE;
         }
         /******************** GC5035_OTP_EDIT_END*******************/
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+       oplus_cam_sensor_for_laser_ois(s_ctrl, slave_info);
+#endif
 
 	return rc;
 }
@@ -1178,6 +842,8 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 	void *arg)
 {
 	int rc = 0;
+	int retry = 0;
+	int tmp = 0;
 	struct cam_control *cmd = (struct cam_control *)arg;
 	struct cam_sensor_power_ctrl_t *power_info = NULL;
 #ifdef CONFIG_PROJECT_INFO
@@ -1246,6 +912,62 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 			goto free_power_settings;
 		}
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+		for (retry = 0; retry < 3; retry++) {
+			/* Power up and probe sensor */
+
+			mutex_lock(&(s_ctrl->sensor_power_state_mutex));
+			if (s_ctrl->sensor_power_state == CAM_SENSOR_POWER_OFF) {
+				tmp = cam_sensor_power_up(s_ctrl);
+				if (tmp < 0) {
+					CAM_ERR(CAM_SENSOR, "sensor power up faild!");
+					mutex_unlock(&(s_ctrl->sensor_power_state_mutex));
+					goto free_power_settings;
+				 } else {
+					CAM_ERR(CAM_SENSOR, "sensor power up success sensor id 0x%x",s_ctrl->sensordata->slave_info.sensor_id);
+					s_ctrl->sensor_power_state = CAM_SENSOR_POWER_ON;
+				 }
+			} else {
+				CAM_ERR(CAM_SENSOR, "sensor have power up!");
+			}
+			mutex_unlock(&(s_ctrl->sensor_power_state_mutex));
+
+
+			if (rc < 0) {
+				CAM_ERR(CAM_SENSOR, "power up failed, need to retry at %d", retry+1);
+				if (retry == 2)
+					goto free_power_settings;
+			} else {
+				break;
+			}
+		}
+
+		/* Match sensor ID */
+		rc = cam_sensor_match_id(s_ctrl);
+		if (rc < 0) {
+			mutex_lock(&(s_ctrl->sensor_power_state_mutex));
+			if (s_ctrl->sensor_power_state == CAM_SENSOR_POWER_ON) {
+				tmp = cam_sensor_power_down(s_ctrl);
+				if (tmp < 0) {
+						CAM_ERR(CAM_SENSOR, "sensor power down faild!");
+						msleep(20);
+						mutex_unlock(&(s_ctrl->sensor_power_state_mutex));
+						goto free_power_settings;
+
+				} else {
+						CAM_ERR(CAM_SENSOR, "sensor power down success sensor id 0x%x",s_ctrl->sensordata->slave_info.sensor_id);
+						s_ctrl->sensor_power_state = CAM_SENSOR_POWER_OFF;
+				}
+			} else {
+				CAM_ERR(CAM_SENSOR, "sensor have power down!");
+			}
+			mutex_unlock(&(s_ctrl->sensor_power_state_mutex));
+			msleep(20);
+			goto free_power_settings;
+		}
+
+		cmd->reserved = s_ctrl->sensordata->slave_info.sensor_version;
+#else
 		/* Power up and probe sensor */
 		rc = cam_sensor_power_up(s_ctrl);
 		if (rc < 0) {
@@ -1261,6 +983,8 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 			goto free_power_settings;
 		}
 
+#endif
+
 		CAM_INFO(CAM_SENSOR,
 			"Probe success,slot:%d,slave_addr:0x%x,sensor_id:0x%x",
 			s_ctrl->soc_info.index,
@@ -1271,7 +995,33 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 		if (rc < 0) {
 			CAM_ERR(CAM_SENSOR, "fail in Sensor Power Down");
 			goto free_power_settings;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+//		cam_fill_module_info(s_ctrl);
+
+		mutex_lock(&(s_ctrl->sensor_power_state_mutex));
+		if(s_ctrl->sensor_power_state == CAM_SENSOR_POWER_ON)
+		{
+			rc = cam_sensor_power_down(s_ctrl);
+			if(rc < 0) {
+				CAM_ERR(CAM_SENSOR, "sensor power down faild!");
+				mutex_unlock(&(s_ctrl->sensor_power_state_mutex));
+				goto free_power_settings;
+			 } else {
+				CAM_ERR(CAM_SENSOR, "sensor power down success sensor id 0x%x",s_ctrl->sensordata->slave_info.sensor_id);
+				s_ctrl->sensor_power_state = CAM_SENSOR_POWER_OFF;
+			 }
+		} else {
+			CAM_ERR(CAM_SENSOR, "sensor have power down!");
 		}
+		mutex_unlock(&(s_ctrl->sensor_power_state_mutex));
+#else
+	rc = cam_sensor_power_down(s_ctrl);
+	if (rc < 0) {
+		CAM_ERR(CAM_SENSOR, "fail in Sensor Power Down");
+		goto free_power_settings;
+	}
+#endif
+
 		/*
 		 * Set probe succeeded flag to 1 so that no other camera shall
 		 * probed on this slot
@@ -1357,7 +1107,32 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 			goto release_mutex;
 		}
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+		mutex_lock(&(s_ctrl->sensor_power_state_mutex));
+		if(s_ctrl->sensor_power_state == CAM_SENSOR_POWER_OFF)
+		{
+			rc = cam_sensor_power_up(s_ctrl);
+			if(rc < 0) {
+				CAM_ERR(CAM_SENSOR, "sensor power up faild!");
+				mutex_unlock(&(s_ctrl->sensor_power_state_mutex));
+				goto release_mutex;
+			 } else {
+				CAM_ERR(CAM_SENSOR, "sensor power up success sensor id 0x%x",s_ctrl->sensordata->slave_info.sensor_id);
+				s_ctrl->sensor_power_state = CAM_SENSOR_POWER_ON;
+			 }
+		} else {
+			CAM_ERR(CAM_SENSOR, "sensor have power up!");
+		}
+		mutex_unlock(&(s_ctrl->sensor_power_state_mutex));
+
+#else
 		rc = cam_sensor_power_up(s_ctrl);
+		if (rc < 0) {
+			CAM_ERR(CAM_SENSOR, "Sensor Power up failed");
+			goto release_mutex;
+		}
+#endif
+
 		if (rc < 0) {
 			CAM_ERR(CAM_SENSOR, "Sensor Power up failed");
 			goto release_mutex;
@@ -1372,14 +1147,13 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 	}
 		break;
 	case CAM_RELEASE_DEV: {
-
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 		/*STOP DEV when sensor is START DEV and RELEASE called*/
-		if (s_ctrl->sensor_state == CAM_SENSOR_START)
-		{
+		if (s_ctrl->sensor_state == CAM_SENSOR_START) {
 			CAM_WARN(CAM_SENSOR,
 			"Unbalance Release called with out STOP: %d",
 						s_ctrl->sensor_state);
-			if (s_ctrl->i2c_data.streamoff_settings.is_settings_valid &&
+			if ((s_ctrl->i2c_data.streamoff_settings.is_settings_valid) &&
 				(s_ctrl->i2c_data.streamoff_settings.request_id == 0)) {
 				rc = cam_sensor_apply_settings(s_ctrl, 0,
 					CAM_SENSOR_PACKET_OPCODE_SENSOR_STREAMOFF);
@@ -1391,7 +1165,7 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 			}
 			s_ctrl->sensor_state = CAM_SENSOR_ACQUIRE;
 		}
-
+#endif
 		if ((s_ctrl->sensor_state == CAM_SENSOR_INIT) ||
 			(s_ctrl->sensor_state == CAM_SENSOR_START)) {
 			rc = -EINVAL;
@@ -1410,11 +1184,34 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 			goto release_mutex;
 		}
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+		mutex_lock(&(s_ctrl->sensor_power_state_mutex));
+		if(s_ctrl->sensor_power_state == CAM_SENSOR_POWER_ON)
+		{
+			rc = cam_sensor_power_down(s_ctrl);
+			if(rc < 0) {
+				CAM_ERR(CAM_SENSOR, "sensor power down faild!");
+				mutex_unlock(&(s_ctrl->sensor_power_state_mutex));
+				goto release_mutex;
+			 } else {
+				CAM_ERR(CAM_SENSOR, "sensor power down success sensor id 0x%x",s_ctrl->sensordata->slave_info.sensor_id);
+				s_ctrl->sensor_power_state = CAM_SENSOR_POWER_OFF;
+				mutex_lock(&(s_ctrl->sensor_initsetting_mutex));
+				s_ctrl->sensor_initsetting_state = CAM_SENSOR_SETTING_WRITE_INVALID;
+				mutex_unlock(&(s_ctrl->sensor_initsetting_mutex));
+			 }
+		} else {
+			CAM_ERR(CAM_SENSOR, "sensor have power down!");
+		}
+		mutex_unlock(&(s_ctrl->sensor_power_state_mutex));
+#else
 		rc = cam_sensor_power_down(s_ctrl);
 		if (rc < 0) {
 			CAM_ERR(CAM_SENSOR, "Sensor Power Down failed");
 			goto release_mutex;
 		}
+#endif
+
 
 		cam_sensor_release_per_frame_resource(s_ctrl);
 		cam_sensor_release_stream_rsc(s_ctrl);
@@ -1520,9 +1317,21 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 		if (s_ctrl->i2c_data.init_settings.is_settings_valid &&
 			(s_ctrl->i2c_data.init_settings.request_id == 0)) {
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+			mutex_lock(&(s_ctrl->sensor_initsetting_mutex));
+			if(s_ctrl->sensor_initsetting_state == CAM_SENSOR_SETTING_WRITE_INVALID){
+					rc = cam_sensor_apply_settings(s_ctrl, 0,
+							CAM_SENSOR_PACKET_OPCODE_SENSOR_INITIAL_CONFIG);
+			}else
+					CAM_ERR(CAM_SENSOR, "init setting have write");
+			mutex_unlock(&(s_ctrl->sensor_initsetting_mutex));
+#else
 			rc = cam_sensor_apply_settings(s_ctrl, 0,
 				CAM_SENSOR_PACKET_OPCODE_SENSOR_INITIAL_CONFIG);
+#endif
 
+
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 			if ((rc == -EAGAIN) &&
 			(s_ctrl->io_master_info.master_type == CCI_MASTER)) {
 				/* If CCI hardware is resetting we need to wait for sometime
@@ -1533,8 +1342,30 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 				usleep_range(5000, 5010);
 				rc = cam_sensor_apply_settings(s_ctrl, 0,
 					CAM_SENSOR_PACKET_OPCODE_SENSOR_INITIAL_CONFIG);
+			} else if (rc < 0) {
+				CAM_WARN(CAM_SENSOR,
+					"Reapplying the Init settings due to rc %d",
+					rc);
+
+				rc = cam_sensor_power_down(s_ctrl);
+				if (rc < 0)
+					CAM_ERR(CAM_SENSOR, "fail in Sensor Power Down");
+
+				rc = cam_sensor_power_up(s_ctrl);
+				if (rc < 0)
+					CAM_ERR(CAM_SENSOR, "Sensor Power up failed");
+
+				rc = cam_sensor_apply_settings(s_ctrl, 0,
+					CAM_SENSOR_PACKET_OPCODE_SENSOR_INITIAL_CONFIG);
 			}
+#endif
+
 			s_ctrl->i2c_data.init_settings.request_id = -1;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+			mutex_lock(&(s_ctrl->sensor_initsetting_mutex));
+			s_ctrl->sensor_initsetting_state = CAM_SENSOR_SETTING_WRITE_SUCCESS;
+			mutex_unlock(&(s_ctrl->sensor_initsetting_mutex));
+#endif
 
 			if (rc < 0) {
 				CAM_ERR(CAM_SENSOR,
@@ -1573,8 +1404,38 @@ int32_t cam_sensor_driver_cmd(struct cam_sensor_ctrl_t *s_ctrl,
 			}
 			s_ctrl->sensor_state = CAM_SENSOR_CONFIG;
 		}
+
+		if (s_ctrl->i2c_data.read_settings.is_settings_valid) {
+			rc = cam_sensor_i2c_read_data(
+				&s_ctrl->i2c_data.read_settings,
+				&s_ctrl->io_master_info);
+			if (rc < 0) {
+				CAM_ERR(CAM_SENSOR, "cannot read data: %d", rc);
+				delete_request(&s_ctrl->i2c_data.read_settings);
+				goto release_mutex;
+			}
+			rc = delete_request(
+				&s_ctrl->i2c_data.read_settings);
+			if (rc < 0) {
+				CAM_ERR(CAM_SENSOR,
+					"Fail in deleting the read settings");
+				goto release_mutex;
+			}
+		}
 	}
 		break;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+                           case CAM_OEM_IO_CMD:
+                           case CAM_OEM_GET_ID:
+                           case CAM_GET_DPC_DATA: {
+                                rc = oplus_cam_sensor_driver_cmd(s_ctrl, arg);
+                                if (rc < 0) {
+                            CAM_ERR(CAM_SENSOR, "oplus cmd failed");
+                            goto release_mutex;
+                                }
+                                break;
+                           }
+#endif
 	default:
 		CAM_ERR(CAM_SENSOR, "Invalid Opcode: %d", cmd->op_code);
 		rc = -EINVAL;
@@ -1706,6 +1567,9 @@ int cam_sensor_power_up(struct cam_sensor_ctrl_t *s_ctrl)
 
 	trace_begin("%d_%d_0x%x Init", s_ctrl->cci_num, s_ctrl->cci_i2c_master, s_ctrl->sensordata->slave_info.sensor_id);
 	rc = camera_io_init(&(s_ctrl->io_master_info));
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	oplus_cam_sensor_power_up(s_ctrl);
+#endif
 	if (rc < 0)
 		CAM_ERR(CAM_SENSOR, "cci_init failed: rc: %d", rc);
 	trace_end();
@@ -1760,6 +1624,16 @@ int cam_sensor_apply_settings(struct cam_sensor_ctrl_t *s_ctrl,
 	struct i2c_settings_array *i2c_set = NULL;
 	struct i2c_settings_list *i2c_list;
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	mutex_lock(&(s_ctrl->sensor_power_state_mutex));
+	if(s_ctrl->sensor_power_state == CAM_SENSOR_POWER_OFF) {
+			CAM_ERR(CAM_SENSOR, "sensor have power down ,cannot apply setting");
+			mutex_unlock(&(s_ctrl->sensor_power_state_mutex));
+			return rc;
+	}
+	mutex_unlock(&(s_ctrl->sensor_power_state_mutex));
+#endif
+
 	if (req_id == 0) {
 		switch (opcode) {
 		case CAM_SENSOR_PACKET_OPCODE_SENSOR_STREAMON: {
@@ -1787,6 +1661,22 @@ int cam_sensor_apply_settings(struct cam_sensor_ctrl_t *s_ctrl,
 			trace_begin("%d_%d_0x%x Apply Setting %d", s_ctrl->cci_num, s_ctrl->cci_i2c_master, s_ctrl->sensordata->slave_info.sensor_id, opcode);
 			list_for_each_entry(i2c_list,
 				&(i2c_set->list_head), list) {
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+				if (s_ctrl->sensordata->slave_info.sensor_id == 0x02d0 ||
+					s_ctrl->sensordata->slave_info.sensor_id == 0x25) {
+					i2c_list->i2c_settings.addr_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
+					CAM_DBG(CAM_SENSOR,
+						"i2c_list->i2c_settings.addr_type: %d",
+						i2c_list->i2c_settings.addr_type);
+				}
+				if (s_ctrl->sensordata->slave_info.sensor_id == 0x5035
+					&& opcode ==  CAM_SENSOR_PACKET_OPCODE_SENSOR_INITIAL_CONFIG) {
+						sensor_gc5035_write_dpc_data(s_ctrl);
+
+						sensor_gc5035_update_reg(s_ctrl);
+				}
+#endif
+
 				rc = cam_sensor_i2c_modes_util(
 					&(s_ctrl->io_master_info),
 					i2c_list);
@@ -1816,6 +1706,15 @@ int cam_sensor_apply_settings(struct cam_sensor_ctrl_t *s_ctrl,
 			i2c_set->request_id == req_id) {
 			list_for_each_entry(i2c_list,
 				&(i2c_set->list_head), list) {
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+				if (s_ctrl->sensordata->slave_info.sensor_id == 0x02d0 ||
+					s_ctrl->sensordata->slave_info.sensor_id == 0x25) {
+				   i2c_list->i2c_settings.addr_type = CAMERA_SENSOR_I2C_TYPE_BYTE;
+				   CAM_DBG(CAM_SENSOR,
+						  "i2c_list->i2c_settings.addr_type: %d",
+						   i2c_list->i2c_settings.addr_type);
+					}
+#endif
 				rc = cam_sensor_i2c_modes_util(
 					&(s_ctrl->io_master_info),
 					i2c_list);
@@ -1881,7 +1780,6 @@ int32_t cam_sensor_apply_request(struct cam_req_mgr_apply_request *apply)
 {
 	int32_t rc = 0;
 	struct cam_sensor_ctrl_t *s_ctrl = NULL;
-
 	if (!apply)
 		return -EINVAL;
 

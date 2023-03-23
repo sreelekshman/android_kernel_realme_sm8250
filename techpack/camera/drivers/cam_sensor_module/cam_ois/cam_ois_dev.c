@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2020, Oplus. All rights reserved.
  */
 
 #include "cam_ois_dev.h"
@@ -283,6 +284,10 @@ static int cam_ois_i2c_driver_probe(struct i2c_client *client,
 
 	o_ctrl->cam_ois_state = CAM_OIS_INIT;
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	oplus_cam_ois_fw_init(o_ctrl);
+#endif
+
 	return rc;
 
 soc_free:
@@ -407,6 +412,9 @@ static int32_t cam_ois_platform_driver_probe(
 		CAM_ERR(CAM_OIS, "failed to init ois_hall_data_fifoV2");
 	}
 	InitOISResource(o_ctrl);
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+       init_ois_hall_data(o_ctrl);
+#endif
 
 	return rc;
 unreg_subdev:
@@ -433,6 +441,10 @@ static int cam_ois_platform_driver_remove(struct platform_device *pdev)
 		CAM_ERR(CAM_OIS, "ois device is NULL");
 		return -EINVAL;
 	}
+
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	oplus_cam_ois_deinit(o_ctrl);
+#endif
 
 	CAM_INFO(CAM_OIS, "platform driver remove invoked");
 	soc_info = &o_ctrl->soc_info;

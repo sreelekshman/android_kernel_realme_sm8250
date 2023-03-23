@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
  * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2020, Oplus. All rights reserved.
  */
 
 #ifndef _CAM_HW_MGR_INTF_H_
@@ -269,7 +270,9 @@ struct cam_hw_flush_args {
 	uint32_t                        num_req_active;
 	void                           *flush_req_active[20];
 	enum flush_type_t               flush_type;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 	uint32_t                        last_flush_req;
+#endif
 };
 
 /**

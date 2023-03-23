@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2020, Oplus. All rights reserved.
  */
 
 #include <linux/module.h>
@@ -44,9 +45,11 @@ static void cam_cci_flush_queue(struct cci_device *cci_dev,
 	void __iomem *base = soc_info->reg_map[0].mem_base;
 
 	cam_io_w_mb(1 << master, base + CCI_HALT_REQ_ADDR);
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 	if (!cci_dev->cci_master_info[master].status)
 		reinit_completion(&cci_dev->cci_master_info[master]
 			.reset_complete);
+#endif
 	rc = wait_for_completion_timeout(
 		&cci_dev->cci_master_info[master].reset_complete, CCI_TIMEOUT);
 	if (rc < 0) {
@@ -56,8 +59,9 @@ static void cam_cci_flush_queue(struct cci_device *cci_dev,
 
 		/* Set reset pending flag to true */
 		cci_dev->cci_master_info[master].reset_pending = true;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 		cci_dev->cci_master_info[master].status = 0;
-
+#endif
 		/* Set proper mask to RESET CMD address based on MASTER */
 		if (master == MASTER_0)
 			cam_io_w_mb(CCI_M0_RESET_RMSK,
@@ -72,7 +76,9 @@ static void cam_cci_flush_queue(struct cci_device *cci_dev,
 			CCI_TIMEOUT);
 		if (rc <= 0)
 			CAM_ERR(CAM_CCI, "wait failed %d", rc);
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 		cci_dev->cci_master_info[master].status = 0;
+#endif
 	}
 }
 
@@ -134,10 +140,12 @@ static int32_t cam_cci_validate_queue(struct cci_device *cci_dev,
 			return rc;
 		}
 		rc = cci_dev->cci_master_info[master].status;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 		if (rc < 0) {
 			CAM_ERR(CAM_CCI, "Failed rc %d", rc);
 			cci_dev->cci_master_info[master].status = 0;
 		}
+#endif
 	}
 
 	return rc;
@@ -277,7 +285,9 @@ static uint32_t cam_cci_wait(struct cci_device *cci_dev,
 	rc = cci_dev->cci_master_info[master].status;
 	if (rc < 0) {
 		CAM_ERR(CAM_CCI, "failed rc %d", rc);
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 		cci_dev->cci_master_info[master].status = 0;
+#endif
 		return rc;
 	}
 
@@ -949,6 +959,7 @@ static int32_t cam_cci_burst_read(struct v4l2_subdev *sd,
 	 * If this call fails, don't proceed with i2c_read call. This is to
 	 * avoid overflow / underflow of queue
 	 */
+        reinit_completion(&cci_dev->cci_master_info[master].report_q[queue]);
 	rc = cam_cci_validate_queue(cci_dev,
 		cci_dev->cci_i2c_queue_info[master][queue].max_queue_size - 1,
 		master, queue);
@@ -1050,6 +1061,7 @@ static int32_t cam_cci_burst_read(struct v4l2_subdev *sd,
 			goto rel_mutex_q;
 		}
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 		if (cci_dev->cci_master_info[master].status) {
 			CAM_ERR(CAM_CCI, "Error with Salve: 0x%x",
 				(c_ctrl->cci_info->sid << 1));
@@ -1057,6 +1069,7 @@ static int32_t cam_cci_burst_read(struct v4l2_subdev *sd,
 			cci_dev->cci_master_info[master].status = 0;
 			goto rel_mutex_q;
 		}
+#endif
 
 		read_words = cam_io_r_mb(base +
 			CCI_I2C_M0_READ_BUF_LEVEL_ADDR + master * 0x100);
@@ -1139,6 +1152,7 @@ static int32_t cam_cci_burst_read(struct v4l2_subdev *sd,
 				goto rel_mutex_q;
 			}
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 			if (cci_dev->cci_master_info[master].status) {
 				CAM_ERR(CAM_CCI, "Error with Slave 0x%x",
 					(c_ctrl->cci_info->sid << 1));
@@ -1146,6 +1160,7 @@ static int32_t cam_cci_burst_read(struct v4l2_subdev *sd,
 				cci_dev->cci_master_info[master].status = 0;
 				goto rel_mutex_q;
 			}
+#endif
 			break;
 		}
 	}
@@ -1336,6 +1351,7 @@ static int32_t cam_cci_read(struct v4l2_subdev *sd,
 		rc = 0;
 	}
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 	if (cci_dev->cci_master_info[master].status) {
 		CAM_ERR(CAM_CCI, "ERROR with Slave 0x%x:",
 			(c_ctrl->cci_info->sid << 1));
@@ -1343,6 +1359,7 @@ static int32_t cam_cci_read(struct v4l2_subdev *sd,
 		cci_dev->cci_master_info[master].status = 0;
 		goto rel_mutex_q;
 	}
+#endif
 
 	read_words = cam_io_r_mb(base +
 		CCI_I2C_M0_READ_BUF_LEVEL_ADDR + master * 0x100);
@@ -1602,7 +1619,9 @@ static int32_t cam_cci_read_bytes(struct v4l2_subdev *sd,
 	 * THRESHOLD irq's, we reinit the threshold wait before
 	 * we load the burst read cmd.
 	 */
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 	reinit_completion(&cci_dev->cci_master_info[master].rd_done);
+#endif
 	reinit_completion(&cci_dev->cci_master_info[master].th_complete);
 
 	CAM_DBG(CAM_CCI, "Bytes to read %u", read_bytes);
@@ -1744,6 +1763,7 @@ int32_t cam_cci_core_cfg(struct v4l2_subdev *sd,
 {
 	int32_t rc = 0;
 	struct cci_device *cci_dev = v4l2_get_subdevdata(sd);
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 	enum cci_i2c_master_t master = MASTER_MAX;
 	CAM_DBG(CAM_CCI, "cmd %d", cci_ctrl->cmd);
 
@@ -1768,7 +1788,7 @@ int32_t cam_cci_core_cfg(struct v4l2_subdev *sd,
 		return -EAGAIN;
 	}
 	CAM_DBG(CAM_CCI, "master = %d", master);
-
+#endif
 	switch (cci_ctrl->cmd) {
 	case MSM_CCI_INIT:
 		mutex_lock(&cci_dev->init_mutex);
@@ -1915,7 +1935,14 @@ int32_t cam_cci_control_interface(void* control)
                             pControl->addr,
                             pControl->data,
                             pControl->count);
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+        mutex_lock(&cci_dev->init_mutex);
         rc = cam_cci_read_bytes(sd, &cci_ctrl_interface);
+        mutex_unlock(&cci_dev->init_mutex);
+#else
+        rc = cam_cci_read_bytes(sd, &cci_ctrl_interface);
+#endif
+
         if(rc < 0){
             int i;
             CAM_ERR(CAM_CCI, "cmd %d,rc=%d", pControl->cmd,rc);
@@ -1938,7 +1965,13 @@ int32_t cam_cci_control_interface(void* control)
                             pControl->addr,
                             pControl->data,
                             pControl->count);
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+        mutex_lock(&cci_dev->init_mutex);
         rc = cam_cci_write(sd, &cci_ctrl_interface);
+        mutex_unlock(&cci_dev->init_mutex);
+#else
+        rc = cam_cci_write(sd, &cci_ctrl_interface);
+#endif
         if(rc < 0){
             CAM_ERR(CAM_CCI, "cmd %d,rc=%d",pControl->cmd,rc);
         }

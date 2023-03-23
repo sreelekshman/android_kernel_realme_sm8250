@@ -413,6 +413,7 @@ static int cam_vfe_bus_ver3_get_num_wm(
 		case CAM_FORMAT_DPCM_14_10_14:
 		case CAM_FORMAT_PLAIN8:
 		case CAM_FORMAT_PLAIN16_10:
+		case CAM_FORMAT_PLAIN16_10_LSB:
 		case CAM_FORMAT_PLAIN16_12:
 		case CAM_FORMAT_PLAIN16_14:
 		case CAM_FORMAT_PLAIN16_16:
@@ -436,6 +437,7 @@ static int cam_vfe_bus_ver3_get_num_wm(
 		case CAM_FORMAT_UBWC_TP10:
 		case CAM_FORMAT_UBWC_P010:
 		case CAM_FORMAT_PLAIN16_10:
+		case CAM_FORMAT_PLAIN16_10_LSB:
 			return 2;
 		default:
 			break;
@@ -448,6 +450,7 @@ static int cam_vfe_bus_ver3_get_num_wm(
 		case CAM_FORMAT_PLAIN8:
 		case CAM_FORMAT_TP10:
 		case CAM_FORMAT_PLAIN16_10:
+		case CAM_FORMAT_PLAIN16_10_LSB:
 			return 2;
 		case CAM_FORMAT_Y_ONLY:
 			return 1;
@@ -472,6 +475,7 @@ static int cam_vfe_bus_ver3_get_num_wm(
 		case CAM_FORMAT_ARGB_14:
 		case CAM_FORMAT_PLAIN8:
 		case CAM_FORMAT_PLAIN16_10:
+		case CAM_FORMAT_PLAIN16_10_LSB:
 		case CAM_FORMAT_PLAIN16_12:
 		case CAM_FORMAT_PLAIN16_14:
 			return 1;
@@ -483,6 +487,7 @@ static int cam_vfe_bus_ver3_get_num_wm(
 		switch (format) {
 		case CAM_FORMAT_PLAIN16_8:
 		case CAM_FORMAT_PLAIN16_10:
+		case CAM_FORMAT_PLAIN16_10_LSB:
 		case CAM_FORMAT_PLAIN16_12:
 		case CAM_FORMAT_PLAIN16_14:
 		case CAM_FORMAT_PLAIN16_16:
@@ -886,6 +891,7 @@ static enum cam_vfe_bus_ver3_packer_format
 	case CAM_FORMAT_Y_ONLY:
 		return PACKER_FMT_VER3_PLAIN_8_LSB_MSB_10;
 	case CAM_FORMAT_PLAIN16_10:
+	case CAM_FORMAT_PLAIN16_10_LSB:
 		return PACKER_FMT_VER3_PLAIN_16_10BPP;
 	case CAM_FORMAT_PLAIN16_12:
 		return PACKER_FMT_VER3_PLAIN_16_12BPP;
@@ -1150,6 +1156,7 @@ static int cam_vfe_bus_ver3_acquire_wm(
 			rsrc_data->stride = rsrc_data->width * 2;
 			break;
 		case CAM_FORMAT_PLAIN16_10:
+		case CAM_FORMAT_PLAIN16_10_LSB:
 		case CAM_FORMAT_PLAIN16_12:
 		case CAM_FORMAT_PLAIN16_14:
 		case CAM_FORMAT_PLAIN16_16:
@@ -1219,6 +1226,19 @@ static int cam_vfe_bus_ver3_acquire_wm(
 			}
 			break;
 		case CAM_FORMAT_TP10:
+			switch (plane) {
+			case PLANE_C:
+				rsrc_data->height /= 2;
+				break;
+			case PLANE_Y:
+				break;
+			default:
+				CAM_ERR(CAM_ISP, "Invalid plane %d", plane);
+				return -EINVAL;
+			}
+			break;
+		case CAM_FORMAT_PLAIN16_10_LSB:
+			rsrc_data->pack_fmt |= 0x10;
 			switch (plane) {
 			case PLANE_C:
 				rsrc_data->height /= 2;
@@ -2426,29 +2446,58 @@ static void cam_vfe_bus_ver3_print_dimensions(
 	enum cam_vfe_bus_plane_type                plane,
 	struct cam_vfe_bus_ver3_priv              *bus_priv)
 {
-	struct cam_isp_resource_node              *wm_res = NULL;
-	struct cam_vfe_bus_ver3_wm_resource_data  *wm_data = NULL;
-	int                                        wm_idx = 0;
+	struct cam_vfe_bus_ver3_common_data       *common_data = NULL;
+	uint32_t addr_status0, addr_status1, addr_status2, addr_status3;
+	struct cam_isp_resource_node              *rsrc_node = NULL;
+	struct cam_vfe_bus_ver3_vfe_out_data      *rsrc_data = NULL;
+	struct cam_vfe_bus_ver3_wm_resource_data  *wm_data   = NULL;
+	int                                        i, wm_idx;
 
-	wm_idx = cam_vfe_bus_ver3_get_wm_idx(vfe_out_res_id, plane,
-		bus_priv->common_data.is_lite);
-
-	if (wm_idx < 0 || wm_idx >= bus_priv->num_client || plane > PLANE_C) {
-		CAM_ERR(CAM_ISP,
-			"Unsupported VFE out_type:0x%X plane:%d wm_idx:%d max_idx:%d",
-			vfe_out_res_id, plane, wm_idx,
-			bus_priv->num_client - 1);
-		return;
+	rsrc_node = &bus_priv->vfe_out[vfe_out_res_id];
+	rsrc_data = rsrc_node->res_priv;
+	for (i = 0; i < rsrc_data->num_wm; i++) {
+		wm_idx = cam_vfe_bus_ver3_get_wm_idx(vfe_out_res_id, i,
+			bus_priv->common_data.is_lite);
+		if (wm_idx < 0 || wm_idx >= bus_priv->num_client) {
+			CAM_ERR(CAM_ISP, "Unsupported VFE out %d",
+				vfe_out_res_id);
+			return -EINVAL;
+		}
+		wm_data = bus_priv->bus_client[wm_idx].res_priv;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+/*Add by Fangyan @ Camera.Drv 2020/01/30 for ESD dump caseid 05060092*/
+		common_data = rsrc_data->common_data;
+		addr_status0 = cam_io_r_mb(common_data->mem_base +
+			wm_data->hw_regs->addr_status_0);
+		addr_status1 = cam_io_r_mb(common_data->mem_base +
+			wm_data->hw_regs->addr_status_1);
+		addr_status2 = cam_io_r_mb(common_data->mem_base +
+			wm_data->hw_regs->addr_status_2);
+		addr_status3 = cam_io_r_mb(common_data->mem_base +
+			wm_data->hw_regs->addr_status_3);
+#endif
+		CAM_INFO(CAM_ISP,
+			"VFE:%d WM:%d width:%u height:%u stride:%u x_init:%u en_cfg:%u acquired width:%u height:%u",
+			wm_data->common_data->core_index, wm_idx,
+			wm_data->width,
+			wm_data->height,
+			wm_data->stride, wm_data->h_init,
+			wm_data->en_cfg,
+			wm_data->acquired_width,
+			wm_data->acquired_height);
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+/*Add by Fangyan @ Camera.Drv 2020/01/30 for ESD dump caseid 05060092*/
+		CAM_INFO(CAM_ISP,
+			"hw:%d WM:%d last consumed address:0x%x last frame addr:0x%x fifo cnt:0x%x current client address:0x%x",
+			common_data->hw_intf->hw_idx,
+			wm_data->index,
+			addr_status0,
+			addr_status1,
+			addr_status2,
+			addr_status3);
+#endif
 	}
-
-	wm_res = &bus_priv->bus_client[wm_idx];
-	wm_data = wm_res->res_priv;
-
-	CAM_INFO(CAM_ISP,
-		"VFE:%d WM:%d width:%u height:%u stride:%u x_init:%u en_cfg:%u",
-		wm_data->common_data->core_index, wm_idx, wm_data->width,
-		wm_data->height, wm_data->stride, wm_data->h_init,
-		wm_data->en_cfg);
+    return 0;
 }
 
 static int cam_vfe_bus_ver3_handle_bus_irq(uint32_t    evt_id,
@@ -3121,22 +3170,28 @@ static int cam_vfe_bus_ver3_update_wm(void *priv, void *cmd_args,
 
 		/* WM Image address */
 		for (k = 0; k < loop_size; k++) {
-			if (wm_data->en_ubwc)
+			if (wm_data->en_ubwc) {
 				CAM_VFE_ADD_REG_VAL_PAIR(reg_val_pair, j,
 					wm_data->hw_regs->image_addr,
 					update_buf->wm_update->image_buf[i] +
 					io_cfg->planes[i].meta_size +
 					k * frame_inc);
-			else if (wm_data->en_cfg & (0x3 << 16))
+				update_buf->wm_update->image_buf_offset[i] =
+					io_cfg->planes[i].meta_size;
+			} else if (wm_data->en_cfg & (0x3 << 16)) {
 				CAM_VFE_ADD_REG_VAL_PAIR(reg_val_pair, j,
 					wm_data->hw_regs->image_addr,
 					(update_buf->wm_update->image_buf[i] +
 					wm_data->offset + k * frame_inc));
-			else
+				update_buf->wm_update->image_buf_offset[i] =
+					wm_data->offset;
+			} else {
 				CAM_VFE_ADD_REG_VAL_PAIR(reg_val_pair, j,
 					wm_data->hw_regs->image_addr,
 					(update_buf->wm_update->image_buf[i] +
 					k * frame_inc));
+				update_buf->wm_update->image_buf_offset[i] = 0;
+			}
 
 			CAM_DBG(CAM_ISP, "WM:%d image address 0x%X",
 				wm_data->index, reg_val_pair[j-1]);

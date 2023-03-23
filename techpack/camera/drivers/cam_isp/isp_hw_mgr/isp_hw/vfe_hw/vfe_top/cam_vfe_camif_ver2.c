@@ -48,6 +48,10 @@ struct cam_vfe_mux_camif_data {
 	bool                               enable_sof_irq_debug;
 	uint32_t                           irq_debug_cnt;
 	uint32_t                           camif_debug;
+	struct timeval                     sof_ts;
+	struct timeval                     epoch_ts;
+	struct timeval                     eof_ts;
+	struct timeval                     error_ts;
 };
 
 static int cam_vfe_camif_get_evt_payload(
@@ -611,6 +615,26 @@ static int cam_vfe_camif_sof_irq_debug(
 	return 0;
 }
 
+int cam_vfe_camif_dump_timestamps(
+	struct cam_isp_resource_node *rsrc_node, void *cmd_args)
+{
+	struct cam_vfe_mux_camif_data *camif_priv =
+		(struct cam_vfe_mux_camif_data *)rsrc_node->res_priv;
+
+	CAM_INFO(CAM_ISP,
+		"CAMIF ERROR time %lld:%lld SOF %lld:%lld EPOCH %lld:%lld EOF %lld:%lld",
+		camif_priv->error_ts.tv_sec,
+		camif_priv->error_ts.tv_usec,
+		camif_priv->sof_ts.tv_sec,
+		camif_priv->sof_ts.tv_usec,
+		camif_priv->epoch_ts.tv_sec,
+		camif_priv->epoch_ts.tv_usec,
+		camif_priv->eof_ts.tv_sec,
+		camif_priv->eof_ts.tv_usec);
+
+	return 0;
+}
+
 static int cam_vfe_camif_process_cmd(struct cam_isp_resource_node *rsrc_node,
 	uint32_t cmd_type, void *cmd_args, uint32_t arg_size)
 {
@@ -634,6 +658,9 @@ static int cam_vfe_camif_process_cmd(struct cam_isp_resource_node *rsrc_node,
 		camif_priv =
 			(struct cam_vfe_mux_camif_data *)rsrc_node->res_priv;
 		camif_priv->camif_debug = *((uint32_t *)cmd_args);
+		break;
+	case CAM_ISP_HW_CMD_CAMIF_DATA:
+		rc = cam_vfe_camif_dump_timestamps(rsrc_node, cmd_args);
 		break;
 	default:
 		CAM_ERR(CAM_ISP,
@@ -779,6 +806,8 @@ static int cam_vfe_camif_handle_irq_bottom_half(void *handler_priv,
 
 	if (irq_status1 & camif_priv->reg_data->error_irq_mask1) {
 		CAM_DBG(CAM_ISP, "Received ERROR");
+
+		ktime_get_boottime_ts64(&ts);
 
 		if (camif_priv->event_cb)
 			camif_priv->event_cb(camif_priv->priv,

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2020, Oplus. All rights reserved.
  */
 
 #include <linux/debugfs.h>
@@ -673,7 +674,9 @@ static int __cam_isp_ctx_handle_buf_done_for_request(
 		CAM_DBG(CAM_REQ,
 			"Move active request %lld to free list(cnt = %d) [all fences done], ctx %u",
 			buf_done_req_id, ctx_isp->active_req_cnt, ctx->ctx_id);
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 		ctx_isp->req_info.last_bufdone_req_id = req->request_id;
+#endif
 	}
 
 	__cam_isp_ctx_update_state_monitor_array(ctx_isp,
@@ -873,7 +876,9 @@ static int __cam_isp_ctx_notify_sof_in_activated_state(
 			notify.dev_hdl = ctx->dev_hdl;
 			notify.frame_id = ctx_isp->frame_id;
 			notify.trigger = CAM_TRIGGER_POINT_SOF;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 			notify.req_id = ctx_isp->req_info.last_bufdone_req_id;
+#endif
 			notify.sof_timestamp_val = ctx_isp->sof_timestamp_val;
 
 			ctx->ctx_crm_intf->notify_trigger(&notify);
@@ -1044,7 +1049,11 @@ static int __cam_isp_ctx_epoch_in_applied(struct cam_isp_context *ctx_isp,
 		 * If no wait req in epoch, this is an error case.
 		 * The recovery is to go back to sof state
 		 */
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 		CAM_ERR(CAM_ISP, "Ctx:%d No wait request", ctx->ctx_id);
+#else
+		CAM_ERR(CAM_ISP, "No wait request");
+#endif
 		ctx_isp->substate_activated = CAM_ISP_CTX_ACTIVATED_SOF;
 
 		/* Send SOF event as empty frame*/
@@ -1060,8 +1069,13 @@ static int __cam_isp_ctx_epoch_in_applied(struct cam_isp_context *ctx_isp,
 	req_isp->bubble_detected = true;
 	req_isp->reapply = true;
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 	CAM_INFO(CAM_ISP, "ctx:%d Report Bubble flag %d req id:%lld",
 		ctx->ctx_id, req_isp->bubble_report, req->request_id);
+#else
+	CAM_DBG(CAM_ISP, "Report Bubble flag %d", req_isp->bubble_report);
+#endif
+
 	if (req_isp->bubble_report && ctx->ctx_crm_intf &&
 		ctx->ctx_crm_intf->notify_err) {
 		struct cam_req_mgr_error_notify notify;
@@ -1210,7 +1224,11 @@ static int __cam_isp_ctx_epoch_in_bubble_applied(
 		 * If no pending req in epoch, this is an error case.
 		 * Just go back to the bubble state.
 		 */
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 		CAM_ERR(CAM_ISP, "ctx:%d No pending request.", ctx->ctx_id);
+#else
+		CAM_ERR(CAM_ISP, "No pending request.");
+#endif
 		__cam_isp_ctx_send_sof_timestamp(ctx_isp, request_id,
 			CAM_REQ_MGR_SOF_EVENT_SUCCESS);
 
@@ -1222,8 +1240,10 @@ static int __cam_isp_ctx_epoch_in_bubble_applied(
 		list);
 	req_isp = (struct cam_isp_ctx_req *)req->req_priv;
 	req_isp->bubble_detected = true;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 	CAM_INFO(CAM_ISP, "Ctx:%d Report Bubble flag %d req id:%lld",
 		ctx->ctx_id, req_isp->bubble_report, req->request_id);
+#endif
 	req_isp->reapply = true;
 
 	if (req_isp->bubble_report && ctx->ctx_crm_intf &&
@@ -1562,7 +1582,9 @@ static int __cam_isp_ctx_fs2_sof_in_sof_state(
 			notify.dev_hdl = ctx->dev_hdl;
 			notify.frame_id = ctx_isp->frame_id;
 			notify.trigger = CAM_TRIGGER_POINT_SOF;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 			notify.req_id = ctx_isp->req_info.last_bufdone_req_id;
+#endif
 			notify.sof_timestamp_val = ctx_isp->sof_timestamp_val;
 
 			ctx->ctx_crm_intf->notify_trigger(&notify);
@@ -1740,7 +1762,9 @@ static int __cam_isp_ctx_fs2_reg_upd_in_applied_state(
 			notify.dev_hdl = ctx->dev_hdl;
 			notify.frame_id = ctx_isp->frame_id;
 			notify.trigger = CAM_TRIGGER_POINT_SOF;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 			notify.req_id = ctx_isp->req_info.last_bufdone_req_id;
+#endif
 			notify.sof_timestamp_val = ctx_isp->sof_timestamp_val;
 
 			ctx->ctx_crm_intf->notify_trigger(&notify);
@@ -1945,6 +1969,16 @@ static int __cam_isp_ctx_apply_req_in_activated_state(
 		goto end;
 	}
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	if (apply->re_apply)
+		if (apply->request_id <= ctx_isp->last_applied_req_id) {
+			CAM_INFO(CAM_ISP,
+				"Trying to reapply the same request %llu again ctx %u",
+				apply->request_id, ctx->ctx_id);
+			return 0;
+	}
+#endif
+
 	spin_lock_bh(&ctx->lock);
 	req = list_first_entry(&ctx->pending_req_list, struct cam_ctx_request,
 		list);
@@ -1955,9 +1989,16 @@ static int __cam_isp_ctx_apply_req_in_activated_state(
 	 * we are in the middle of the error handling. Need to reject this apply
 	 */
 	if (req->request_id != apply->request_id) {
+#ifndef OPLUS_FEATURE_CAMERA_COMMON
 		CAM_ERR_RATE_LIMIT(CAM_ISP,
 			"Invalid Request Id asking %llu existing %llu",
 			apply->request_id, req->request_id);
+#else
+		CAM_ERR_RATE_LIMIT(CAM_ISP,
+			"Invalid Request Id asking %llu existing %llu ctx %u",
+			apply->request_id, req->request_id,
+			ctx->ctx_id);
+#endif
 		rc = -EFAULT;
 		goto end;
 	}
@@ -2242,6 +2283,15 @@ static int __cam_isp_ctx_flush_req_in_top_state(
 		}
 
 		spin_lock_bh(&ctx->lock);
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+		/*
+		 * As HW is stopped already No request will move from
+		 * one list to other good time to flush reqs. case:04818238
+		 */
+		CAM_DBG(CAM_ISP, "try to flush pending list");
+		rc = __cam_isp_ctx_flush_req(ctx, &ctx->pending_req_list,
+			flush_req);
+#endif
 		if (!list_empty(&ctx->wait_req_list))
 			rc = __cam_isp_ctx_flush_req(ctx, &ctx->wait_req_list,
 				flush_req);
@@ -2428,7 +2478,9 @@ static int __cam_isp_ctx_rdi_only_sof_in_top_state(
 		notify.dev_hdl = ctx->dev_hdl;
 		notify.frame_id = ctx_isp->frame_id;
 		notify.trigger = CAM_TRIGGER_POINT_SOF;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 		notify.req_id = ctx_isp->req_info.last_bufdone_req_id;
+#endif
 		notify.sof_timestamp_val = ctx_isp->sof_timestamp_val;
 
 		ctx->ctx_crm_intf->notify_trigger(&notify);
@@ -2511,7 +2563,12 @@ static int __cam_isp_ctx_rdi_only_sof_in_bubble_applied(
 		 * If no pending req in epoch, this is an error case.
 		 * The recovery is to go back to sof state
 		 */
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+		//wangyongwu@Camera add for case:04394854
 		CAM_ERR(CAM_ISP, "Ctx:%d No wait request", ctx->ctx_id);
+#else
+		CAM_ERR(CAM_ISP, "No wait request");
+#endif
 		ctx_isp->substate_activated = CAM_ISP_CTX_ACTIVATED_SOF;
 
 		/* Send SOF event as empty frame*/
@@ -2525,9 +2582,12 @@ static int __cam_isp_ctx_rdi_only_sof_in_bubble_applied(
 		list);
 	req_isp = (struct cam_isp_ctx_req *)req->req_priv;
 	req_isp->bubble_detected = true;
+	req_isp->reapply = true;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 	CAM_INFO(CAM_ISP, "Ctx:%d Report Bubble flag %d req id:%lld",
 		ctx->ctx_id, req_isp->bubble_report, req->request_id);
 	req_isp->reapply = true;
+#endif
 
 	if (req_isp->bubble_report && ctx->ctx_crm_intf &&
 		ctx->ctx_crm_intf->notify_err) {
@@ -2627,7 +2687,9 @@ static int __cam_isp_ctx_rdi_only_sof_in_bubble_state(
 		notify.dev_hdl = ctx->dev_hdl;
 		notify.frame_id = ctx_isp->frame_id;
 		notify.trigger = CAM_TRIGGER_POINT_SOF;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 		notify.req_id = ctx_isp->req_info.last_bufdone_req_id;
+#endif
 		notify.sof_timestamp_val = ctx_isp->sof_timestamp_val;
 
 		ctx->ctx_crm_intf->notify_trigger(&notify);
@@ -2700,7 +2762,9 @@ static int __cam_isp_ctx_rdi_only_reg_upd_in_bubble_applied_state(
 		notify.dev_hdl = ctx->dev_hdl;
 		notify.frame_id = ctx_isp->frame_id;
 		notify.trigger = CAM_TRIGGER_POINT_SOF;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 		notify.req_id = ctx_isp->req_info.last_bufdone_req_id;
+#endif
 		notify.sof_timestamp_val = ctx_isp->sof_timestamp_val;
 
 		ctx->ctx_crm_intf->notify_trigger(&notify);
@@ -2898,7 +2962,9 @@ static int __cam_isp_ctx_release_hw_in_top_state(struct cam_context *ctx,
 	ctx_isp->reported_req_id = 0;
 	ctx_isp->hw_acquired = false;
 	ctx_isp->init_received = false;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 	ctx_isp->req_info.last_bufdone_req_id = 0;
+#endif
 
 	atomic64_set(&ctx_isp->state_monitor_head, -1);
 
@@ -2959,7 +3025,9 @@ static int __cam_isp_ctx_release_dev_in_top_state(struct cam_context *ctx,
 	ctx_isp->hw_acquired = false;
 	ctx_isp->init_received = false;
 	ctx_isp->rdi_only_context = false;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 	ctx_isp->req_info.last_bufdone_req_id = 0;
+#endif
 
 	atomic64_set(&ctx_isp->state_monitor_head, -1);
 
@@ -3835,7 +3903,11 @@ static int __cam_isp_ctx_start_dev_in_ready(struct cam_context *ctx,
 		list_add(&req->list, &ctx->pending_req_list);
 		goto end;
 	}
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
+	CAM_INFO(CAM_ISP, "start device success ctx %u", ctx->ctx_id);
+#else
 	CAM_DBG(CAM_ISP, "start device success ctx %u", ctx->ctx_id);
+#endif
 
 end:
 	return rc;
@@ -3890,6 +3962,7 @@ static int __cam_isp_ctx_stop_dev_in_activated_unlock(
 		__cam_isp_ctx_substate_val_to_type(
 		ctx_isp->substate_activated));
 
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 	if (ctx->ctx_crm_intf &&
 		ctx->ctx_crm_intf->notify_stop) {
 		struct cam_req_mgr_notify_stop notify;
@@ -3901,6 +3974,7 @@ static int __cam_isp_ctx_stop_dev_in_activated_unlock(
 		ctx->ctx_crm_intf->notify_stop(&notify);
 	} else
 		CAM_ERR(CAM_ISP, "cb not present");
+#endif
 
 	while (!list_empty(&ctx->pending_req_list)) {
 		req = list_first_entry(&ctx->pending_req_list,
@@ -3955,7 +4029,9 @@ static int __cam_isp_ctx_stop_dev_in_activated_unlock(
 	ctx_isp->reported_req_id = 0;
 	ctx_isp->bubble_frame_cnt = 0;
 	ctx_isp->last_applied_req_id = 0;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 	ctx_isp->req_info.last_bufdone_req_id = 0;
+#endif
 	atomic_set(&ctx_isp->process_bubble, 0);
 	atomic64_set(&ctx_isp->state_monitor_head, -1);
 
@@ -4414,7 +4490,9 @@ int cam_isp_context_init(struct cam_isp_context *ctx,
 	ctx->frame_id = 0;
 	ctx->active_req_cnt = 0;
 	ctx->reported_req_id = 0;
+#ifdef OPLUS_FEATURE_CAMERA_COMMON
 	ctx->req_info.last_bufdone_req_id = 0;
+#endif
 	ctx->bubble_frame_cnt = 0;
 	ctx->hw_ctx = NULL;
 	ctx->substate_activated = CAM_ISP_CTX_ACTIVATED_SOF;
