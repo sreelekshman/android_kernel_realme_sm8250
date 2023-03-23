@@ -718,6 +718,10 @@ void wcd_mbhc_report_plug(struct wcd_mbhc *mbhc, int insertion,
 		if (mbhc->enable_hp_impedance_detect) {
 		#endif /* OPLUS_FEATURE_IMPEDANCE_MATCH */
 
+		#ifdef OPLUS_FEATURE_IMPEDANCE_MATCH
+		if (mbhc->enable_hp_impedance_detect) {
+		#endif /* OPLUS_FEATURE_IMPEDANCE_MATCH */
+
 		if (mbhc->mbhc_cb->hph_pa_on_status)
 			is_pa_on = mbhc->mbhc_cb->hph_pa_on_status(component);
 
@@ -1314,6 +1318,9 @@ static void wcd_mbhc_swch_irq_handler(struct wcd_mbhc *mbhc)
 			    WCD_MBHC_REG_UPDATE_BITS(WCD_MBHC_ELECT_ISRC_EN, 0);
 			mbhc->is_extn_cable = false;
 			jack_type = SND_JACK_LINEOUT;
+			break;
+		case MBHC_PLUG_TYPE_ANC_HEADPHONE:
+			jack_type = SND_JACK_ANC_HEADPHONE;
 			break;
 		default:
 			pr_info("%s: Invalid current plug: %d\n",

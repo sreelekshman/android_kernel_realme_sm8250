@@ -5574,14 +5574,13 @@ static int get_ec_ref_port_id(int value, int *index)
 		*index = 40;
 		port_id = AFE_PORT_ID_QUINARY_TDM_TX;
 		break;
+	#ifdef OPLUS_ARCH_EXTENDS
+	//add tdm pri aec port
 	case 41:
 		*index = 41;
 		port_id = AFE_PORT_ID_PRIMARY_TDM_RX;
 		break;
-	case 42:
-		*index = 42;
-		port_id = AFE_PORT_ID_PRIMARY_TDM_TX;
-		break;
+	#endif
 	default:
 		*index = 0; /* NONE */
 		pr_err("%s: Invalid value %d\n", __func__, value);
