@@ -536,7 +536,7 @@ static inline int dvb_dmx_swfilter_payload(struct dvb_demux_feed *feed,
 
 	feed->first_cc = 0;
 	feed->cc = cc;
-
+	
 	/* PUSI ? */
 	if (buf[1] & 0x40) {
 		dvb_dmx_check_pes_end(feed);
@@ -797,6 +797,7 @@ static int dvb_dmx_swfilter_section_one_packet(struct dvb_demux_feed *feed,
 		feed->pusi_seen = 0;
 		dvb_dmx_swfilter_section_new(feed);
 	}
+	feed->cc = cc;
 
 	if (buf[1] & 0x40) {
 		/* PUSI=1 (is set), section boundary is here */
