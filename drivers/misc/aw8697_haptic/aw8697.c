@@ -5115,8 +5115,6 @@ static unsigned char aw8697_haptic_set_level(struct aw8697 *aw8697, int gain)
     if (val > 255)
         val = 255;
 
-    pr_err("%s: value=%d\n", __FUNCTION__, val);
-
     return val;
 }
 

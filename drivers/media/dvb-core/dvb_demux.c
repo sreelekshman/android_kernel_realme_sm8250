@@ -771,7 +771,6 @@ static int dvb_dmx_swfilter_section_one_packet(struct dvb_demux_feed *feed,
 		return -EINVAL;
 
 	feed->first_cc = 0;
-	feed->cc = cc;
 
 	if (buf[3] & 0x20) {
 		/* adaption field present, check for discontinuity_indicator */
