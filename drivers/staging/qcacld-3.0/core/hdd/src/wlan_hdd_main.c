@@ -15542,6 +15542,7 @@ static ssize_t wlan_hdd_state_ctrl_param_write(struct file *filp,
 	int ret;
 	unsigned long rc;
 	struct hdd_context *hdd_ctx = cds_get_context(QDF_MODULE_ID_HDD);
+	bool turning_on = false;
 
 	if (copy_from_user(buf, user_buf, 3)) {
 		pr_err("Failed to read buffer\n");
@@ -15558,7 +15559,7 @@ static ssize_t wlan_hdd_state_ctrl_param_write(struct file *filp,
 		goto exit;
 	}
 
-	if (strncmp(buf, wlan_on_str, strlen(wlan_on_str)) == 0)
+	if (strncmp(buf, wlan_on_str, strlen(wlan_on_str)) == 0) {
 		pr_info("Wifi Turning On from UI\n");
 		#ifdef OPLUS_FEATURE_WIFI_DCS_SWITCH
 		//Add for wifi switch monitor
