@@ -367,11 +367,6 @@ int32_t cam_lc898128_write_data(struct cam_ois_ctrl_t * o_ctrl,void * arg)
 		CAM_ERR(CAM_OIS, "Failed Copy from User");
 		return -EFAULT;
 	}
-
-	//disable write protection
-	if (cam_write_eeprom.isWRP == 0x01) {
-		WriteEEpromData(&cam_write_eeprom);
-	}
 	//ReadEEpromData(&cam_write_eeprom);
 
 	return rc;
