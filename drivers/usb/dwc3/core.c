@@ -164,10 +164,7 @@ void dwc3_dis_sleep_mode(struct dwc3 *dwc)
 	dwc3_writel(dwc->regs, DWC3_GUCTL1, reg);
 }
 
-static void dwc3_event_buffers_cleanup(struct dwc3 *dwc);
-static int dwc3_event_buffers_setup(struct dwc3 *dwc);
-
-static void dwc3_set_prtcap(struct dwc3 *dwc, u32 mode)
+void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
 {
 	unsigned long flags;
 
@@ -1216,23 +1213,19 @@ static void __maybe_unused dwc3_core_exit_mode(struct dwc3 *dwc)
 {
 	switch (dwc->dr_mode) {
 	case USB_DR_MODE_PERIPHERAL:
-		dwc3_set_prtcap(dwc, DWC3_GCTL_PRTCAP_DEVICE);
 		dwc3_gadget_exit(dwc);
 		break;
 	case USB_DR_MODE_HOST:
-		dwc3_set_prtcap(dwc, DWC3_GCTL_PRTCAP_HOST);
 		dwc3_host_exit(dwc);
 		break;
 	case USB_DR_MODE_OTG:
-		INIT_WORK(&dwc->drd_work, __dwc3_set_mode);
-		dwc3_set_mode(dwc, DWC3_GCTL_PRTCAP_DEVICE);
 		dwc3_drd_exit(dwc);
 		break;
 	default:
 		/* do nothing */
 		break;
 	}
-
+	
 	/* de-assert DRVVBUS for HOST and OTG mode */
 	dwc3_set_prtcap(dwc, DWC3_GCTL_PRTCAP_DEVICE);
 }

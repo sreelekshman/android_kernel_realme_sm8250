@@ -2514,7 +2514,7 @@ out_unlock:
 	spin_unlock(&free_i->segmap_lock);
 
 	if (ret) {
-		f2fs_stop_checkpoint(sbi, false);
+		f2fs_stop_checkpoint(sbi, false, STOP_CP_REASON_FLUSH_FAIL);
 		f2fs_bug_on(sbi, 1);
 	}
 	return ret;
@@ -3331,7 +3331,6 @@ int f2fs_allocate_data_block(struct f2fs_sb_info *sbi, struct page *page,
 	}
 
 	mutex_unlock(&curseg->curseg_mutex);
-
 	f2fs_up_read(&SM_I(sbi)->curseg_lock);
 	return 0;
 out_err:
@@ -3339,12 +3338,7 @@ out_err:
 
 	up_write(&sit_i->sentry_lock);
 	mutex_unlock(&curseg->curseg_mutex);
-	up_read(&SM_I(sbi)->curseg_lock);
-	if (IS_DATASEG(type))
-		up_write(&sbi->node_write);
-
-	if (put_pin_sem)
-		up_read(&sbi->pin_sem);
+	f2fs_up_read(&SM_I(sbi)->curseg_lock);
 	return -ENOSPC;
 }
 
@@ -3384,7 +3378,7 @@ static void do_write_page(struct f2fs_summary *sum, struct f2fs_io_info *fio)
 		f2fs_down_read(&fio->sbi->io_order_lock);
 reallocate:
 	if (f2fs_allocate_data_block(fio->sbi, fio->page, fio->old_blkaddr,
-			&fio->new_blkaddr, sum, type, fio, true)) {
+			&fio->new_blkaddr, sum, type, fio)) {
 		if (fscrypt_inode_uses_fs_layer_crypto(fio->page->mapping->host))
 			fscrypt_finalize_bounce_page(&fio->encrypted_page);
 		if (PageWriteback(fio->page))
