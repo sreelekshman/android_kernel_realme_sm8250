@@ -3050,10 +3050,6 @@ end:
 	return rc;
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 0261548dd41b (techpack: camera: Import changes from RealmeUI 4.0)
 /**
  * cam_req_mgr_cb_notify_timer()
  *

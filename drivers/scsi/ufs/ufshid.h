@@ -72,11 +72,7 @@
 		pr_err("%40s:%3d [%01d%02d%02d] " msg "\n",		\
 		       __func__, __LINE__,				\
 		       hid->hid_trigger,				\
-<<<<<<< HEAD
 		       atomic_read(&hid->ufsf->hba->dev->power.usage_count), \
-=======
-		       atomic_read(&hid->ufsf->hba->dev->power.usage_count),\
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 		       hid->ufsf->hba->clk_gating.active_reqs, ##args);	\
 	} while (0)
 

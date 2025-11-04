@@ -4722,10 +4722,7 @@ static int _sde_crtc_check_secure_state(struct drm_crtc *crtc,
 #ifdef OPLUS_BUG_STABILITY
 extern int lcd_closebl_flag_fp;
 extern int oplus_dimlayer_hbm;
-<<<<<<< HEAD
 extern int oplus_dimlayer_aod;
-=======
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 extern int oplus_dimlayer_bl_alpha_value;
 extern int oplus_dimlayer_bl_enable;
 extern bool oplus_ffl_trigger_finish;
@@ -4741,15 +4738,9 @@ static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
 	int aod_index = -1;
 	int zpos = INT_MAX;
 	int mode;
-<<<<<<< HEAD
-	int fp_mode = oplus_onscreenfp_status;
-	int dimlayer_hbm = oplus_dimlayer_hbm;
-	int dimlayer_aod = oplus_dimlayer_aod;
-=======
 	int panel_power_mode;
 	int fp_mode = oplus_onscreenfp_status;
 	int dimlayer_hbm = oplus_dimlayer_hbm;
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 	int dimlayer_bl = 0;
 	int i;
 
@@ -4840,11 +4831,6 @@ static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
 			cstate->fingerprint_mode = false;
 
 		SDE_DEBUG("debug for get cstate->fingerprint_mode = %d\n", cstate->fingerprint_mode);
-<<<<<<< HEAD
-
-		SDE_DEBUG("aod_index = %d, fp_index= %d, fppressed_index = %d, fp_mode=%d, bl=%d\n",
-			aod_index, fp_index, fppressed_index, fp_mode, oplus_get_panel_brightness());
-=======
 		panel_power_mode = oplus_get_panel_power_mode();
 
 		/* when aod layer is present */
@@ -4873,7 +4859,6 @@ static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
 
 		SDE_DEBUG("aod_index = %d, fp_index= %d, fppressed_index = %d, fp_mode=%d, panel_power_mode = %d, bl=%d\n",
 			aod_index, fp_index, fppressed_index, fp_mode, panel_power_mode, oplus_get_panel_brightness());
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 
 		/* find the min zpos in fp_index/fppressed_index stage to dim layer, then fp_index/fppressed_index stage increase one */
 		if (fp_index >= 0) {
@@ -4892,11 +4877,7 @@ static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
 			}
 		}
 
-<<<<<<< HEAD
-		/* when no fppressed_index/fp_index layer, dim layer's zpos is the most stage */
-=======
 		/* when no aod_index/fppressed_index/fp_index layer, dim layer's zpos is the most stage */
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 		if (zpos == INT_MAX) {
 			zpos = 0;
 			for (i = 0; i < cnt; i++) {
@@ -4922,7 +4903,6 @@ static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
 			cstate->fingerprint_pressed = false;
 
 		SDE_DEBUG("debug for get cstate->fingerprint_pressed = %d\n", cstate->fingerprint_pressed);
-<<<<<<< HEAD
 	} else if (dimlayer_aod) {
 		zpos = 0;
 		/* look for highest stage for dimlayer's zpos */
@@ -4938,14 +4918,10 @@ static int sde_crtc_onscreenfinger_atomic_check(struct sde_crtc_state *cstate,
 		}
 	} else {
 		oplus_underbrightness_alpha = 0;
-=======
-	} else {
-		oplus_underbrightness_alpha = 0;
 		oplus_set_aod_dim_alpha(CUST_A_NO);
 		cstate->fingerprint_dim_layer = NULL;
 		cstate->fingerprint_mode = false;
 		cstate->fingerprint_pressed = false;
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 	}
 	SDE_EVT32(cstate->fingerprint_dim_layer);
 

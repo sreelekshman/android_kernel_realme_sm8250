@@ -486,9 +486,6 @@ int32_t cam_context_prepare_dev_to_hw(struct cam_context *ctx,
 						ctx->dev_name, ctx->ctx_id,
 						req->request_id);
 
-<<<<<<< HEAD
-				goto put_ctx_ref;
-=======
 #ifdef OPLUS_FEATURE_CAMERA_COMMON
 /*wangjingkai@camera qcom case:04895864 Fix context release timing issue */
 				cam_context_putref(ctx);
@@ -496,7 +493,6 @@ int32_t cam_context_prepare_dev_to_hw(struct cam_context *ctx,
 #else
 				goto put_ctx_ref;
 #endif
->>>>>>> 0261548dd41b (techpack: camera: Import changes from RealmeUI 4.0)
 			}
 			CAM_DBG(CAM_CTXT, "register in fence cb: %d ret = %d",
 				req->in_map_entries[j].sync_id, rc);
@@ -504,18 +500,12 @@ int32_t cam_context_prepare_dev_to_hw(struct cam_context *ctx,
 	}
 
 	return rc;
-<<<<<<< HEAD
-put_ctx_ref:
-	for (; j >= 0; j--)
-		cam_context_putref(ctx);
-=======
 #ifndef OPLUS_FEATURE_CAMERA_COMMON
 /*wangjingkai@camera qcom case:04895864 Fix context release timing issue */
 put_ctx_ref:
 	for (; j >= 0; j--)
 		cam_context_putref(ctx);
 #endif
->>>>>>> 0261548dd41b (techpack: camera: Import changes from RealmeUI 4.0)
 put_ref:
 	for (--i; i >= 0; i--) {
 		if (cam_sync_put_obj_ref(req->out_map_entries[i].sync_id))

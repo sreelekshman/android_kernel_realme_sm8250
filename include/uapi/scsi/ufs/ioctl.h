@@ -9,19 +9,11 @@
  *  SCSI_IOCTL_GET_PCI
  */
 #define UFS_IOCTL_QUERY			0x5388
-<<<<<<< HEAD
-=======
-
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #ifdef OPLUS_FEATURE_UFSPLUS
 #if defined(CONFIG_UFSFEATURE)
 #define UFSFEATURE_QUERY_OPCODE	0x5500
 #endif
 #endif
-<<<<<<< HEAD
-=======
-
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 /**
  * struct ufs_ioctl_query_data - used to transfer data to and from user via
  * ioctl

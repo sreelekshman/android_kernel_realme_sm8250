@@ -1,10 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
  * Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
-<<<<<<< HEAD
-=======
  * Copyright (c) 2020, Oplus. All rights reserved.
->>>>>>> 0261548dd41b (techpack: camera: Import changes from RealmeUI 4.0)
  */
 
 #ifndef _CAM_SENSOR_DEV_H_
@@ -128,8 +125,6 @@ struct cam_sensor_ctrl_t {
 	bool bob_pwm_switch;
 	uint32_t last_flush_req;
 	uint16_t pipeline_delay;
-<<<<<<< HEAD
-=======
 #ifdef OPLUS_FEATURE_CAMERA_COMMON
 	bool laser_support;
 	bool sem1815s_ois_support;
@@ -140,7 +135,6 @@ struct cam_sensor_ctrl_t {
 	struct task_struct *sensor_open_thread;
 
 #endif
->>>>>>> 0261548dd41b (techpack: camera: Import changes from RealmeUI 4.0)
 };
 
 #endif /* _CAM_SENSOR_DEV_H_ */

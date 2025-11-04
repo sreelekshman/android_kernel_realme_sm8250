@@ -700,10 +700,6 @@ int geni_se_tx_dma_prep(struct device *wrapper_dev, void __iomem *base,
  */
 void geni_se_rx_dma_start(void __iomem *base, int rx_len, dma_addr_t *rx_dma);
 #endif
-<<<<<<< HEAD
-=======
-
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 /**
  * geni_se_rx_dma_start() - Prepare the Serial Engine registers for RX DMA
 				transfers.

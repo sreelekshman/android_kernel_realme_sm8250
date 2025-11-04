@@ -89,14 +89,9 @@ extern char build_variant[];
 extern char sim_card_num[];
 extern char cdt[];
 extern char serial_no[];
-<<<<<<< HEAD
-
-static void init_project_version(void)
-=======
 extern char prj_name[];
 
 static int init_project_version(void)
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 {
     /*for qcom's smem*/
     size_t smem_size;
@@ -105,11 +100,7 @@ static int init_project_version(void)
     uint16_t index = 0;
 
     if (g_project) {
-<<<<<<< HEAD
         return;
-=======
-        return 0;
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 	}
     /*get project info from smem*/
     else {
@@ -118,21 +109,13 @@ static int init_project_version(void)
         &smem_size);
         if (IS_ERR(smem_addr)) {
             pr_err("unable to acquire smem SMEM_PROJECT entry\n");
-<<<<<<< HEAD
             return;
-=======
-            return -1;
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
         }
 
         g_project = (ProjectInfoOCDT *)smem_addr;
         if (g_project == ERR_PTR(-EPROBE_DEFER)) {
             g_project = NULL;
-<<<<<<< HEAD
             return;
-=======
-            return 0;
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
         }
 
         do {
@@ -191,10 +174,7 @@ static int init_project_version(void)
             get_dtsiNo(),
             get_audio());
     pr_err("oplus project info loading finished\n");
-<<<<<<< HEAD
-=======
     return 0;
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 
 }
 
@@ -210,11 +190,6 @@ static int __init cdt_setup(char *str)
 
 unsigned int get_project(void)
 {
-<<<<<<< HEAD
-    init_project_version();
-
-    return g_project? g_project->nDataBCDT.ProjectNo : 0;
-=======
     int prjno = 0;
 
     if ( -1 == init_project_version()) {
@@ -224,7 +199,6 @@ unsigned int get_project(void)
     }
     else
         return g_project? g_project->nDataBCDT.ProjectNo : 0;
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 }
 EXPORT_SYMBOL(get_project);
 
@@ -371,11 +345,7 @@ uint32_t get_oplus_feature(enum F_INDEX index)
 EXPORT_SYMBOL(get_oplus_feature);
 
 #define SERIALNO_LEN 16
-<<<<<<< HEAD
 unsigned int get_serialID(void)
-=======
-unsigned int get_serialID()
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 {
     unsigned int serial_id = 0xFFFFFFFF;
 
@@ -589,11 +559,7 @@ static int project_read_func(struct seq_file *s, void *v)
     return 0;
 }
 
-<<<<<<< HEAD
 unsigned int get_cdt_version(void)
-=======
-unsigned int get_cdt_version()
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 {
     init_project_version();
 
@@ -769,8 +735,4 @@ arch_initcall(oplus_project_init);
 
 MODULE_DESCRIPTION("OPLUS project version");
 MODULE_LICENSE("GPL v2");
-<<<<<<< HEAD
-MODULE_AUTHOR("Joshua");
-=======
 MODULE_AUTHOR("Joshua <gyx@oplus.com>");
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)

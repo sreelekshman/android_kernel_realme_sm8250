@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-only
 # Copyright (C) 2018-2020 Oplus. All rights reserved.
 
-<<<<<<< HEAD
 obj-y 	+= platform.o
 obj-$(CONFIG_OPLUS_FEATURE_SHUTDOWN_DETECT)    += shutdown_detect/
 obj-$(CONFIG_OPLUS_FEATURE_OPROJECT) 	+= oplus_project/
@@ -47,11 +46,9 @@ obj-$(CONFIG_OPLUS_FEATURE_OLC) += olc/
 #ifdef CONFIG_OPLUS_FEATURE_FDLEAK_CHECK
 obj-$(CONFIG_OPLUS_FEATURE_FDLEAK_CHECK)     += oplus_fdleak/
 #endif /*CONFIG_OPLUS_FEATURE_FDLEAK_CHECK*/
-=======
 obj-$(CONFIG_OPLUS_FEATURE_FEEDBACK) 	+= feedback/
 obj-$(CONFIG_OPLUS_FEATURE_OPROJECT) 	+= oplus_project/
 obj-$(CONFIG_OPLUS_FEATURE_CMDLINE)     += cmdline_parser/
 obj-$(CONFIG_OPLUS_FEATURE_PROJECTINFO)	+=  project_info/
 obj-$(CONFIG_OPLUS_FEATURE_MM_FEEDBACK) += oplus_mm_fb/
 obj-$(CONFIG_OPLUS_PARAM_READ_WRITE)    += param/
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)

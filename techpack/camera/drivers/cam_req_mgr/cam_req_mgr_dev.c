@@ -23,14 +23,9 @@
 #include <linux/slub_def.h>
 #include "cam_trace.h"
 
-<<<<<<< HEAD
-#ifdef VENDOR_EDIT
-#define CAM_REQ_MGR_EVENT_MAX 64
-=======
 #ifdef OPLUS_FEATURE_CAMERA_COMMON
 //zhangzhengrong@camera modify for kernel event Q overlow issue case04395272
 #define CAM_REQ_MGR_EVENT_MAX 80
->>>>>>> 0261548dd41b (techpack: camera: Import changes from RealmeUI 4.0)
 #else
 #define CAM_REQ_MGR_EVENT_MAX 30
 #endif

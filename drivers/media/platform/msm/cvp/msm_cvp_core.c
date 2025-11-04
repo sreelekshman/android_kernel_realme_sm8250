@@ -220,10 +220,6 @@ static bool msm_cvp_check_for_inst_overload(struct msm_cvp_core *core)
 		overload = true;
 	return overload;
 }
-<<<<<<< HEAD
-#ifdef OPLUS_FEATURE_CAMERA_COMMON
-static int __init_session_queue(struct msm_cvp_inst *inst)
-=======
 
 #ifdef OPLUS_FEATURE_CAMERA_COMMON
 static int __init_session_queue(struct msm_cvp_inst *inst)
@@ -253,7 +249,6 @@ static void __init_fence_queue(struct msm_cvp_inst *inst)
 
 #else
 static int _init_session_queue(struct msm_cvp_inst *inst)
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 {
 	spin_lock_init(&inst->session_queue.lock);
 	INIT_LIST_HEAD(&inst->session_queue.msgs);
@@ -393,12 +388,6 @@ void *msm_cvp_open(int core_id, int session_type)
 #ifdef OPLUS_FEATURE_CAMERA_COMMON
 	__init_fence_queue(inst);
 
-<<<<<<< HEAD
-=======
-#ifdef OPLUS_FEATURE_CAMERA_COMMON
-	__init_fence_queue(inst);
-
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 	rc = __init_session_queue(inst);
 #else
 	rc = _init_session_queue(inst);
@@ -475,10 +464,6 @@ wait:
 	if (cvp_comm_release_persist_buffers(inst))
 		dprintk(CVP_ERR,
 			"Failed to release persist buffers\n");
-<<<<<<< HEAD
-=======
-
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #ifdef OPLUS_FEATURE_CAMERA_COMMON
 	msm_cvp_session_queue_stop(inst);
 #endif

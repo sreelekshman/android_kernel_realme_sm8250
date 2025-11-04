@@ -349,10 +349,6 @@ int get_pkt_index(struct cvp_hal_session_cmd_pkt *hdr)
 
 	return -EINVAL;
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 #ifndef OPLUS_FEATURE_CAMERA_COMMON
 int set_feature_bitmask(int pkt_idx, unsigned long *bitmask)
 {
@@ -380,10 +376,6 @@ int set_feature_bitmask(int pkt_idx, unsigned long *bitmask)
 	return -EINVAL;
 }
 #endif
-<<<<<<< HEAD
-=======
-
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 int get_hfi_version(void)
 {
 	struct msm_cvp_core *core;

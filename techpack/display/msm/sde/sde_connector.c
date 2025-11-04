@@ -27,18 +27,12 @@
 
 #ifdef OPLUS_BUG_STABILITY
 #include "sde_trace.h"
-<<<<<<< HEAD
-
-extern u32 g_new_bk_level;
-static DEFINE_SPINLOCK(g_bk_lock);
-=======
 #include <linux/sched.h>
 #include "oplus_onscreenfingerprint.h"
 
 extern u32 g_new_bk_level;
 static DEFINE_SPINLOCK(g_bk_lock);
 extern int oplus_dimlayer_hbm;
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 #endif
 
 
@@ -94,8 +88,6 @@ static const struct drm_prop_enum_list e_frame_trigger_mode[] = {
 #ifdef OPLUS_BUG_STABILITY
 extern int oplus_debug_max_brightness;
 extern int oplus_seed_backlight;
-<<<<<<< HEAD
-=======
 /*Display.LCD.Stable,2022-09-20 add for dc */
 struct dc_apollo_pcc_sync dc_apollo;
 EXPORT_SYMBOL(dc_apollo);
@@ -103,7 +95,6 @@ extern int dc_apollo_enable;
 extern int oplus_backlight_wait_vsync(struct drm_encoder *drm_enc);
 extern int dc_apollo_sync_hbmon(struct dsi_display *display);
 extern bool is_spread_backlight(struct dsi_display *display, int level);
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 #endif
 
 static int sde_backlight_device_update_status(struct backlight_device *bd)
@@ -207,42 +198,25 @@ static int sde_backlight_device_update_status(struct backlight_device *bd)
 			}
 
 		if (is_support_panel_backlight_smooths(display->panel->oplus_priv.vendor_name)) {
-<<<<<<< HEAD
-				if ((bl_lvl >= 2) && (bl_lvl <= 200)) {
-					spin_lock(&g_bk_lock);
-					g_new_bk_level = bl_lvl;
-					spin_unlock(&g_bk_lock);
-				} else {
-=======
 			if (is_spread_backlight(display, bl_lvl) && !dc_apollo_sync_hbmon(display)) {
 					oplus_dc_pcc_backlight(display, c_conn, bl_lvl);
 					spin_lock(&g_bk_lock);
 					g_new_bk_level = bl_lvl;
 					spin_unlock(&g_bk_lock);
 			} else {
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 					spin_lock(&g_bk_lock);
 					g_new_bk_level = bl_lvl;
 					spin_unlock(&g_bk_lock);
 					rc = c_conn->ops.set_backlight(&c_conn->base,
 					c_conn->display, bl_lvl);
 					c_conn->unset_bl_level = 0;
-<<<<<<< HEAD
 				}
-=======
-			}
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 		} else {
 					rc = c_conn->ops.set_backlight(&c_conn->base,
 					c_conn->display, bl_lvl);
 					c_conn->unset_bl_level = 0;
-<<<<<<< HEAD
 				}
 		}
-=======
-		}
-	}
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 #endif
 
 #ifdef OPLUS_BUG_STABILITY
@@ -290,8 +264,6 @@ static int sde_backlight_setup(struct sde_connector *c_conn,
 #else
 	props.brightness = bl_config->brightness_default_level;
 #endif
-<<<<<<< HEAD
-=======
 
 #ifdef OPLUS_BUG_STABILITY
 	/*DC backlight sync*/
@@ -301,7 +273,6 @@ static int sde_backlight_setup(struct sde_connector *c_conn,
 	}
 #endif
 
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 	snprintf(bl_node_name, BL_NODE_NAME_SIZE, "panel%u-backlight",
 							display_count);
 	c_conn->bl_device = backlight_device_register(bl_node_name, dev->dev,

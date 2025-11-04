@@ -26,11 +26,7 @@
  */
 #include <linux/notifier.h>
 #include <linux/msm_drm_notify.h>
-<<<<<<< HEAD
-#include <soc/oplus/device_info.h>
-=======
 #include <soc/oppo/device_info.h>
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 #if defined(OPLUS_FEATURE_PXLW_IRIS5)
 #include <video/mipi_display.h>
 #include "iris/dsi_iris5_api.h"
@@ -43,11 +39,8 @@
 #include "oplus_adfr.h"
 #endif
 
-<<<<<<< HEAD
 #include "../../../drivers/input/oplus_fp_drivers/include/oplus_fp_common.h"
 
-=======
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 extern int hbm_mode;
 extern int spr_mode;
 extern int lcd_closebl_flag;
@@ -58,11 +51,8 @@ int backlight_smooth_enable = 1;
 
 extern int oplus_underbrightness_alpha;
 int oplus_dimlayer_fingerprint_failcount = 0;
-<<<<<<< HEAD
-=======
 extern struct dc_apollo_pcc_sync dc_apollo;
 extern int oplus_backlight_wait_vsync(struct drm_encoder *drm_enc);
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 extern int msm_drm_notifier_call_chain(unsigned long val, void *v);
 int oplus_dc2_alpha;
 int oplus_dimlayer_bl_enable_v3 = 0;
@@ -92,13 +82,9 @@ ktime_t oplus_backlight_time;
 u32 oplus_backlight_delta = 0;
 
 extern int oplus_dimlayer_hbm;
-<<<<<<< HEAD
 extern int oplus_dimlayer_hbm_saved;
 extern int enable_global_hbm_flags;
 extern int oplus_dimlayer_aod;
-=======
-extern int enable_global_hbm_flags;
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 
 /*#ifdef OPLUS_BUG_STABILITY*/
 EXPORT_SYMBOL(backlight_smooth_enable);
@@ -115,14 +101,11 @@ int dsi_cmd_log_enable = 0;
 EXPORT_SYMBOL(dsi_cmd_log_enable);
 /*#endif*/
 
-<<<<<<< HEAD
-=======
 /*#ifdef OPLUS_BUG_STABILITY*/
 /* add for fix close DC flicker */
 extern int dc_apollo_enable;
 /*#endif*/
 
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 /* #ifdef OPLUS_BUG_STABILITY */
 /* add for optimizing the display effect under low backlight brightness */
 struct delayed_work dimming_gamma_read_work;
@@ -130,11 +113,8 @@ char dimming_gamma_60hz[30] = {0};
 char dimming_gamma_120hz[15] = {0};
 /* #endif */
 
-<<<<<<< HEAD
 struct fp_underscreen_info fp_state = {0};
 
-=======
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 #define PANEL_CMD_MIN_TX_COUNT 2
 
 extern int dsi_display_read_panel_reg(struct dsi_display *display, u8 cmd, void *data, size_t len);
@@ -300,12 +280,8 @@ bool is_support_panel_hbm_enter_send_hbm_on_cmd(const char *panel_name)
 		|| (!strcmp(panel_name, "AMB655X")) || (!strcmp(panel_name, "AMB655XL08"))
 		|| (!strcmp(panel_name, "AMB655UV01") && (display->panel->oplus_priv.is_oplus_project))
 		|| (!strcmp(display->panel->name, "samsung ams662zs01 dsc cmd 21623"))
-<<<<<<< HEAD
-		|| (!strcmp(panel_name, "AMS643YE01"))) {
-=======
 		|| (!strcmp(panel_name, "AMS643YE01"))
 		|| (!strcmp(panel_name, "AMS662ZS01"))) {
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 		return true;
 	} else {
 		return false;
@@ -341,8 +317,6 @@ bool is_support_panel_dc_seed_mode_flag(const char *panel_name) {
 	}
 }
 
-<<<<<<< HEAD
-=======
 void oplus_dc_pcc_backlight (struct dsi_display *display, struct sde_connector *c_conn, int bl_lvl) {
 	int rc = 0;
 	if (display->panel->oplus_priv.dc_apollo_sync_enable) {
@@ -383,7 +357,6 @@ void oplus_dc_pcc_backlight (struct dsi_display *display, struct sde_connector *
 	}
 }
 
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 bool oplus_panel_hbm_exit_check_wait_vblank(const char *vendor)
 {
 	/* AMB655X/AMB655XL08/AMS643YE01 no need wait for vblank */
@@ -1763,11 +1736,7 @@ static ssize_t oplus_display_set_dimlayer_enable(struct device *dev,
 static ssize_t oplus_display_get_dimlayer_hbm(struct device *dev,
                                 struct device_attribute *attr, char *buf)
 {
-<<<<<<< HEAD
 	return sprintf(buf, "%d\n", oplus_dimlayer_hbm_saved);
-=======
-	return sprintf(buf, "%d\n", oplus_dimlayer_hbm);
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 }
 
 extern int oplus_dimlayer_hbm_vblank_count;
@@ -1783,7 +1752,6 @@ static ssize_t oplus_display_set_dimlayer_hbm(struct device *dev,
 
 	sscanf(buf, "%d", &value);
 	value = !!value;
-<<<<<<< HEAD
 	if (oplus_dimlayer_hbm_saved == value)
 		return count;
 	if (get_oplus_display_power_status() == OPLUS_DISPLAY_POWER_ON) {
@@ -1806,26 +1774,6 @@ static ssize_t oplus_display_set_dimlayer_hbm(struct device *dev,
 #ifdef OPLUS_BUG_STABILITY
 	pr_err("debug for oplus_display_set_dimlayer_hbm set oplus_dimlayer_hbm = %d, oplus_dimlayer_hbm_saved = %d\n",
 		oplus_dimlayer_hbm, oplus_dimlayer_hbm_saved);
-=======
-	if (oplus_dimlayer_hbm == value)
-		return count;
-	if (!dsi_connector || !dsi_connector->state || !dsi_connector->state->crtc) {
-		pr_err("[%s]: display not ready\n", __func__);
-	} else {
-		err = drm_crtc_vblank_get(dsi_connector->state->crtc);
-		if (err) {
-			pr_err("failed to get crtc vblank, error=%d\n", err);
-		} else {
-			/* do vblank put after 5 frames */
-			oplus_dimlayer_hbm_vblank_count = 5;
-			atomic_inc(&oplus_dimlayer_hbm_vblank_ref);
-		}
-	}
-	oplus_dimlayer_hbm = value;
-
-#ifdef OPLUS_BUG_STABILITY
-	pr_err("debug for oplus_display_set_dimlayer_hbm set oplus_dimlayer_hbm = %d\n",oplus_dimlayer_hbm);
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 #endif
 
 	return count;
@@ -2419,18 +2367,13 @@ int dsi_display_oplus_set_power(struct drm_connector *connector,
 		switch(get_oplus_display_scene()) {
 		case OPLUS_DISPLAY_NORMAL_SCENE:
 		case OPLUS_DISPLAY_NORMAL_HBM_SCENE:
-<<<<<<< HEAD
 			oplus_dimlayer_hbm = 0;
 			oplus_dimlayer_aod = 1;
 			oplus_dimlayer_vblank(connector->state->crtc);
-=======
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 			rc = dsi_panel_set_lp1(display->panel);
 			rc = dsi_panel_set_lp2(display->panel);
 			set_oplus_display_scene(OPLUS_DISPLAY_AOD_SCENE);
 			break;
-<<<<<<< HEAD
-=======
 		case OPLUS_DISPLAY_AOD_HBM_SCENE:
 			/* Skip aod off if fingerprintpress exist */
 			if (!sde_crtc_get_fingerprint_pressed(connector->state->crtc->state)) {
@@ -2457,7 +2400,6 @@ int dsi_display_oplus_set_power(struct drm_connector *connector,
 			}
 
 			break;
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 		case OPLUS_DISPLAY_AOD_SCENE:
 		default:
 			break;
@@ -2485,13 +2427,6 @@ int dsi_display_oplus_set_power(struct drm_connector *connector,
 				}
 			}
 #endif /* OPLUS_FEATURE_ADFR */
-<<<<<<< HEAD
-			if (!strcmp(display->panel->oplus_priv.vendor_name, "AMS644VK04")) {
-				display->panel->need_power_on_backlight = true;
-			}
-			rc = dsi_panel_set_nolp(display->panel);
-			set_oplus_display_scene(OPLUS_DISPLAY_NORMAL_SCENE);
-=======
 			if (sde_crtc_get_fingerprint_mode(connector->state->crtc->state)) {
 				mutex_lock(&display->panel->panel_lock);
 				dsi_display_clk_ctrl(display->dsi_clk_handle,
@@ -2525,7 +2460,6 @@ int dsi_display_oplus_set_power(struct drm_connector *connector,
 				rc = dsi_panel_set_nolp(display->panel);
 				set_oplus_display_scene(OPLUS_DISPLAY_NORMAL_SCENE);
 			}
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 		}
 		if (!strcmp(display->panel->oplus_priv.vendor_name, "S6E3HC3")) {
 			if (!sde_crtc_get_fingerprint_mode(connector->state->crtc->state)) {
@@ -2550,7 +2484,6 @@ int dsi_display_oplus_set_power(struct drm_connector *connector,
 			oplus_dsi_update_spr_mode();
 		}
 		set_oplus_display_power_status(OPLUS_DISPLAY_POWER_ON);
-<<<<<<< HEAD
 		if (oplus_dimlayer_hbm != oplus_dimlayer_hbm_saved) {
 			oplus_dimlayer_hbm = oplus_dimlayer_hbm_saved;
 		}
@@ -2558,11 +2491,9 @@ int dsi_display_oplus_set_power(struct drm_connector *connector,
 		oplus_dimlayer_vblank(connector->state->crtc);
 		msm_drm_notifier_call_chain(MSM_DRM_EVENT_BLANK,
 					    &notifier_data);
-=======
 		/*  A tablet Pad, add for NT36523 resume touch here */
 		if(strcmp(display->panel->name, "nt36523 lcd vid mode dsi panel"))
 			msm_drm_notifier_call_chain(MSM_DRM_EVENT_BLANK, &notifier_data);
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 		break;
 	case SDE_MODE_DPMS_OFF:
 	default:
@@ -2830,8 +2761,6 @@ static ssize_t oplus_display_set_dsi_cmd_log_switch(struct device *dev,
 
 	return count;
 }
-<<<<<<< HEAD
-=======
 
 static ssize_t oplus_display_get_dc_real_backlight(struct device *dev,
 		struct device_attribute *attr, char *buf)
@@ -2859,7 +2788,6 @@ static ssize_t oplus_display_set_dc_real_backlight(struct device *dev,
 
 	return count;
 }
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 /*#endif*/
 
 int dsi_display_read_panel_reg_unlock(struct dsi_display *display, u8 cmd, void *data, size_t len)
@@ -3371,12 +3299,8 @@ int oplus_dimming_gamma_write(struct dsi_panel *panel)
 		return -EINVAL;
 	}
 
-<<<<<<< HEAD
-	if (strcmp(panel->oplus_priv.vendor_name, "ANA6706") || !panel->oplus_priv.is_oplus_project) {
-=======
 	if (strcmp(panel->oplus_priv.vendor_name, "ANA6706") || !panel->oplus_priv.is_oplus_project ||
 		strcmp(panel->name, "samsung ams662zs01 dsc cmd 21623")) {
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 		return 0;
 	}
 
@@ -3765,15 +3689,12 @@ static ssize_t oplus_display_get_mipi_clk_rate_hz(struct device *dev,
 	return sprintf(buf, "%llu\n", clk_rate_hz);
 }
 
-<<<<<<< HEAD
 static ssize_t oplus_display_get_fp_state(struct device *obj,
 	struct device_attribute *attr, char *buf)
 {
 	return sprintf(buf, "%d,%d,%d\n", fp_state.x, fp_state.y, fp_state.touch_state);
 }
 
-=======
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 static struct kobject *oplus_display_kobj;
 
 static DEVICE_ATTR(hbm, S_IRUGO|S_IWUSR, oplus_display_get_hbm, oplus_display_set_hbm);
@@ -3814,10 +3735,7 @@ static DEVICE_ATTR(mipi_clk_rate_hz, S_IRUGO|S_IWUSR, oplus_display_get_mipi_clk
 static DEVICE_ATTR(aod_area, S_IRUGO|S_IWUSR, oplus_display_get_aod_area, oplus_display_set_aod_area);
 static DEVICE_ATTR(video, S_IRUGO|S_IWUSR, oplus_display_get_video, oplus_display_set_video);
 #endif /* OPLUS_FEATURE_AOD_RAMLESS */
-<<<<<<< HEAD
 static DEVICE_ATTR(fp_state, S_IRUGO, oplus_display_get_fp_state, NULL);
-=======
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 
 #ifdef OPLUS_FEATURE_ADFR
 static DEVICE_ATTR(adfr_debug, S_IRUGO|S_IWUSR, oplus_adfr_get_debug, oplus_adfr_set_debug);
@@ -3827,11 +3745,8 @@ static DEVICE_ATTR(backlight_smooth, S_IRUGO|S_IWUSR, oplus_backlight_smooth_get
 
 /*#ifdef OPLUS_BUG_STABILITY*/
 static DEVICE_ATTR(dsi_cmd_log_switch, S_IRUGO | S_IWUSR, oplus_display_get_dsi_cmd_log_switch, oplus_display_set_dsi_cmd_log_switch);
-<<<<<<< HEAD
-=======
 /* Apollo DC backlight */
 static DEVICE_ATTR(dc_real_backlight, S_IRUGO | S_IWUSR, oplus_display_get_dc_real_backlight, oplus_display_set_dc_real_backlight);
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 /*#endif*/
 /* fp type config */
 static DEVICE_ATTR(fp_type, S_IRUGO|S_IWUSR, oplus_ofp_get_fp_type_attr, oplus_ofp_set_fp_type_attr);
@@ -3887,18 +3802,14 @@ static struct attribute *oplus_display_attrs[] = {
 
 /*#ifdef OPLUS_BUG_STABILITY*/
 	&dev_attr_dsi_cmd_log_switch.attr,
-<<<<<<< HEAD
 /*#endif*/
 	/* fp type config */
 	&dev_attr_fp_type.attr,
 	&dev_attr_fp_state.attr,
-=======
 	/* Apollo DC backlight */
 	&dev_attr_dc_real_backlight.attr,
 /*#endif*/
 	/* fp type config */
-	&dev_attr_fp_type.attr,
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 	NULL,	/* need to NULL terminate the list of attributes */
 };
 
@@ -3920,7 +3831,6 @@ int oplus_display_get_resolution(unsigned int *xres, unsigned int *yres)
 }
 EXPORT_SYMBOL(oplus_display_get_resolution);
 
-<<<<<<< HEAD
 static int oplus_opticalfp_irq_handler(struct fp_underscreen_info *tp_info) {
 	fp_state.x = tp_info->x;
 	fp_state.y = tp_info->y;
@@ -3929,8 +3839,6 @@ static int oplus_opticalfp_irq_handler(struct fp_underscreen_info *tp_info) {
 	return IRQ_HANDLED;
 }
 
-=======
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 static int __init oplus_display_private_api_init(void)
 {
 	struct dsi_display *display = get_main_display();
@@ -3955,15 +3863,11 @@ static int __init oplus_display_private_api_init(void)
 	if(oplus_ffl_thread_init())
 		pr_err("fail to init oplus_ffl_thread\n");
 
-<<<<<<< HEAD
 	opticalfp_irq_handler_register(oplus_opticalfp_irq_handler);
 
 	if (retval) {
 		goto error_remove_sysfs_group;
 	}
-=======
-
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)
 
 	return 0;
 
@@ -3988,8 +3892,4 @@ static void __exit oplus_display_private_api_exit(void)
 module_init(oplus_display_private_api_init);
 module_exit(oplus_display_private_api_exit);
 MODULE_LICENSE("GPL v2");
-<<<<<<< HEAD
 MODULE_AUTHOR("Hujie");
-=======
-MODULE_AUTHOR("Hujie <hujie@oplus.com>");
->>>>>>> 5f279a28ccbd (techpack: display: Import changes from RealmeUI 4.0)

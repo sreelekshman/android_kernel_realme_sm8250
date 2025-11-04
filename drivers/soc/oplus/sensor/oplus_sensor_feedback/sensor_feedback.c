@@ -24,12 +24,9 @@
 #include <linux/version.h>
 
 #include "sensor_feedback.h"
-<<<<<<< HEAD
-=======
 #if defined(CONFIG_OPLUS_FEATURE_FEEDBACK) || defined(CONFIG_OPLUS_FEATURE_FEEDBACK_MODULE)
 #include <soc/oplus/system/kernel_fb.h>
 #endif
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 
 #define ALIGN4(s) ((sizeof(s) + 3)&(~0x3))
 
@@ -348,12 +345,9 @@ static void cal_subsystem_sleep_ratio(struct subsystem_desc *subsystem_desc) {
 							adsp_sleep_ratio_fied,
 							subsystem_desc[index].subsys_name,
 							subsys_sleep_ratio);
-<<<<<<< HEAD
-=======
 					#if defined(CONFIG_OPLUS_FEATURE_FEEDBACK) || defined(CONFIG_OPLUS_FEATURE_FEEDBACK_MODULE)
 					oplus_kevent_fb(FB_SENSOR, SENSOR_POWER_TYPE, payload);
 					#endif
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 			}
 		}
 	}
@@ -445,12 +439,9 @@ static ssize_t hal_info_store(struct device *dev,
 				strbuf);
 	pr_info("payload =%s\n", payload);
 
-<<<<<<< HEAD
-=======
 	#if defined(CONFIG_OPLUS_FEATURE_FEEDBACK) || defined(CONFIG_OPLUS_FEATURE_FEEDBACK_MODULE)
 	oplus_kevent_fb(FB_SENSOR, g_fb_conf[index].fb_event_id, payload);
 	#endif
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 	return count;
 }
 
@@ -723,13 +714,10 @@ static int parse_shr_info(struct sensor_fb_cxt *sensor_fb_cxt)
 				detail_buff,
                                 sensor_fb_cxt->fb_smem.event[count].name);
 		pr_info("payload1 =%s\n", payload);
-<<<<<<< HEAD
-=======
 #if defined(CONFIG_OPLUS_FEATURE_FEEDBACK) || defined(CONFIG_OPLUS_FEATURE_FEEDBACK_MODULE)
 		oplus_kevent_fb(FB_SENSOR, g_fb_conf[index].fb_event_id, payload);
 		pr_info("send oplus kevent fb\n");
 #endif
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 	}
 
 	return ret;
