@@ -1,10 +1,5 @@
 obj-$(CONFIG_OPLUS_FINGERPRINT) += oplus_fp_common/
 
-<<<<<<< HEAD
-### Optical fingerprint sensor
-obj-$(CONFIG_OPLUS_FINGERPRINT_JIIOV_OPTICAL)	+= anc_driver/
-obj-$(CONFIG_OPLUS_FINGERPRINT_GOODIX_OPTICAL)	+= goodix_optical_fp/
-=======
 ### Capacitive fingerprint sensor
 obj-$(CONFIG_OPLUS_FINGERPRINT_FPC) += fpc/
 obj-$(CONFIG_OPLUS_FINGERPRINT_CDFPS) += cdfingerfp/
@@ -25,4 +20,3 @@ obj-$(CONFIG_OPLUS_FINGERPRINT_GOODIX_OPTICAL)	+= 	goodix_optical_fp/
 obj-$(CONFIG_OPLUS_FINGERPRINT_FOCALTECH) += focaltech_fp/
 ### FEATURE MACRO
 ccflags-$(CONFIG_OPLUS_FINGERPRINT_NAVIGATION_ENABLE) += -DFP_NAVIGATION_ENABLE
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)

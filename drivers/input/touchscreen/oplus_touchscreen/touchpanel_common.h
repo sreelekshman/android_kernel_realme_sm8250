@@ -1036,7 +1036,6 @@ struct touchpanel_data {
 	u64 curr_time;/*Record the interruption time to kernel*/
 	u64 irq_interval;/*Record the interruption time to calculate the reporting rate*/
 	u64 irq_handle_time;/*Record the interruption handle time*/
-	int high_frame_value;
 
 	u8 limit_switch;
 	int dead_zone_l;                                    /*landscape dead zone*/

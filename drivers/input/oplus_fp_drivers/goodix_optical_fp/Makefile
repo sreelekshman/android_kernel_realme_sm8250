@@ -1,8 +1,6 @@
 ifeq ($(CONFIG_OPLUS_FINGERPRINT_QCOM),y)
 ccflags-y += -DQCOM_PLATFORM
 obj-y  += gf_spi.o gf_platform.o gf_netlink.o
-<<<<<<< HEAD
-=======
 
 else ifeq ($(CONFIG_OPLUS_FINGERPRINT_MTK),y)
 subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/include
@@ -21,5 +19,4 @@ ccflags-y += -DMTK_PLATFORM
 
 obj-y  += gf_tee.o
 gf_tee-y := gf_spi_tee.o gf_platform_mtk.o gf_netlink.o
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
 endif

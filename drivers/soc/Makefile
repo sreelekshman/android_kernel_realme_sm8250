@@ -25,7 +25,6 @@ obj-$(CONFIG_ARCH_U8500)	+= ux500/
 obj-$(CONFIG_PLAT_VERSATILE)	+= versatile/
 obj-y				+= xilinx/
 obj-$(CONFIG_ARCH_ZX)		+= zte/
-<<<<<<< HEAD
 obj-y                           += oplus/
 #ifdef VENDOR_EDIT
 obj-$(CONFIG_OPLUS_SYSTEM_KERNEL)	+= oplus/system/
@@ -48,12 +47,9 @@ obj-y += oplus/misc/
 
 #Add for NandSwap
 obj-$(CONFIG_NANDSWAP)		+= oplus/oplus_nandswap/
-=======
 
 obj-$(CONFIG_OPLUS_DEVICE_INFO)	+= oplus/device_info/
 obj-y					+= oplus/misc/
 obj-y					+= oplus/sensor/
-obj-$(CONFIG_OPLUS_SYSTEM_KERNEL)	+= oplus/system/
 obj-$(CONFIG_HORAE_THERMAL_SHELL)	+= oplus/thermal/
 
->>>>>>> a6531d8ad1aa (treewide: Import minimal changes from RealmeUI 4.0)
